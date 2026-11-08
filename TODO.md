@@ -27,6 +27,7 @@ Two rules for this file:
 | a raw syscall site patched on disk and at load, in a chroot tree | [recipes/patch-syscall-site.md](recipes/patch-syscall-site.md) |
 | shared memory via `memfd` on a kernel with no SysV IPC, on all three phones | [recipes/memfd-shared-segment.md](recipes/memfd-shared-segment.md) |
 | deleting a tree while `/dev` was bound into it took a rooted phone off USB; `/dev` was rebuilt by the reboot (413 entries) | [tree/root.md](tree/root.md#deleting-a-tree-safely); the rule is in [AGENTS](AGENTS.md) |
+| two checks on every push: every internal link and anchor resolves, `sh -n` passes on the nine shell examples, `gcc -fsyntax-only` on the two C files | [checks.yml](.github/workflows/checks.yml) |
 
 ## Next, in suggested order
 
@@ -40,16 +41,7 @@ cache, locales.
 - **needs:** hours on a host, no phone root;
 - **output:** a build transcript reduced to the failure signatures, plus one run.
 
-### 2. Two CI checks
-
-A single workflow, no device: (a) every internal link and anchor resolves;
-(b) every file in `examples/` passes `sh -n`, and the two C files pass
-`gcc -fsyntax-only`.
-
-- **settles:** drift - a rename that breaks a link, a script that stops parsing;
-- **needs:** nothing but a workflow file.
-
-### 3. User namespaces, on more devices
+### 2. User namespaces, on more devices
 
 `unshare -Ur true` is refused on the three phones here, including as root. Probe
 more kernels and ROMs before writing level 4 without root off entirely.
@@ -57,7 +49,7 @@ more kernels and ROMs before writing level 4 without root off entirely.
 - **settles:** whether the rootless half of level 4 exists anywhere;
 - **output:** one row per device in [evidence](reference/evidence.md).
 
-### 4. A virtual machine (level 5)
+### 3. A virtual machine (level 5)
 
 AVF on a supported device, with a tree inside it: what it can reach, what it
 cannot, and what the tree costs in there.
@@ -65,7 +57,7 @@ cannot, and what the tree costs in there.
 - **settles:** the last row of the isolation scale;
 - **needs:** a device with AVF and a lot of patience.
 
-### 5. Re-run the multi-distro case
+### 4. Re-run the multi-distro case
 
 A second glibc supply (an Ubuntu or Arch tree) under the same core, so the claim
 that the loader comes from the program is reproducible from this repository.

@@ -77,6 +77,8 @@ labelled, and every failure is named by its observable string.
 
 ## Process, such as it is
 
-Single maintainer, no CI. Open an issue or a pull request; one claim per
+Single maintainer. Two checks run on every push — every internal link and anchor
+resolves, and every file in `examples/` parses — so a pull request that passes
+them is read rather than built. Open an issue or a pull request; one claim per
 paragraph makes review a five-minute job. Changes to `reference/limits.md` that
 correct a symptom→cause pair are merged fastest.

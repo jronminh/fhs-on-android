@@ -13,6 +13,12 @@ the repository, not what it contains.
   method, each with its isolation level and its cost.
 - `reference/` — the platform (three gates), the three domains, the failure
   catalogue, measurement, prior art, evidence.
+- `tools/` — the checks CI runs, so they can be run before a push:
+  `python3 tools/check-links.py` from the repository root.
+
+CI is [`.github/workflows/checks.yml`](.github/workflows/checks.yml): links and
+anchors, then `sh -n` and `gcc -fsyntax-only` over `examples/`. A change that
+breaks one of them is not merged.
 
 Every method page has the same six sections: what it buys, what it costs, an
 example from real code, how it fails, by domain, evidence. Every method is valid;

@@ -1,0 +1,42 @@
+name: checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: checks-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  links:
+    name: links and anchors
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: every internal link and anchor resolves
+        run: python3 tools/check-links.py
+
+  parses:
+    name: examples parse
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: sh -n on every shell example
+        run: |
+          set -eu
+          for f in examples/*.sh; do
+            sh -n "$f"
+            printf 'ok  %s\n' "$f"
+          done
+      - name: gcc -fsyntax-only on every C example
+        run: |
+          set -eu
+          for f in examples/*.c; do
+            gcc -fsyntax-only -Wall -Wextra "$f"
+            printf 'ok  %s\n' "$f"
+          done
