@@ -1,128 +1,103 @@
-# Running an FHS tree on Android
+# Running a Linux program in an FHS tree on Android
 
-A **tree** is a directory with a stable layout — `bin lib etc var` — that makes a
-stock, non-rooted (or rooted) Android phone behave like a Linux box. This
-repository is the map of how to build one, what the platform will and will not
-allow, and which parts of the answer change when the phone is not yours to press
-buttons on.
+Two sentences are the whole repository.
 
-It is a guide, not a product and not a wrapper around one.
+1. **Build an FHS tree on Android** — a directory with `bin lib etc var` that a
+   program can call its root ([tree/](tree/README.md)).
+2. **Make a Linux program that knows nothing about Android run inside it** — and
+   say what each way of doing that costs ([methods/](methods/README.md)).
 
-## The short version
+Every method is an answer to the second sentence, and every answer has a price.
+The price that matters most is **isolation**: how many things end up standing
+between the program and the phone. This guide treats isolation as a **cost**,
+because the reason to have a tree on Android is to use Android — its kernel, its
+hardware, its services — not to hide from it.
 
-**A tree is a layout the kernel has never heard of.**
+## The isolation scale
 
-There is no `CAP_SYS_ADMIN` on a stock phone, so `chroot`, `mount` and `unshare`
-are refused; the only uid you have is the one you were started with. What
-follows is not one problem but three, and they are usually confused:
+| level | what stands between the program and Android | typical method | what it costs |
+| --- | --- | --- | --- |
+| **0** | nothing | [scripts](methods/scripts.md), [static binaries](methods/static-binary.md), a [rebuilt program](methods/rebuild.md) | nothing |
+| **1** | build time only | [patched package](methods/patch-package.md), [own libc](methods/own-libc.md) | the source, or the file |
+| **2** | a preloaded DSO, in the process | [loader shim](methods/loader.md) | blind spots: static binaries, raw syscalls |
+| **3** | a tracer at the syscall boundary | [tracer](methods/tracer.md), proot | a stop per call |
+| **4** | namespaces, `chroot` | [chroot](methods/chroot.md), userns | privilege; Android's services and nodes go out of reach. `chroot` works on a rooted phone, `unshare -Ur` is refused even there [m] |
+| **5** | a virtual machine | AVF | the phone becomes a host, not a platform |
 
-1. **which kind of tree** — a foreign userland you import, or one you build from
-   what the host already gives you ([two kinds of tree](docs/two-kinds-of-tree.md));
-2. **which path strategy** — four ways to make a program find the tree, from
-   emulating `/` to teaching the program where it lives
-   ([the four strategies](docs/two-kinds-of-tree.md#the-four-path-strategies));
-3. **where it lives** — and therefore whether it survives a reboot, an app
-   update, or a factory reset ([root](docs/root.md#the-durability-ladder)).
+Level 0 is not a way to run a *glibc* program unmodified: a glibc program needs
+its loader found, which is level 1 at most. That is the honest shape of the
+problem — the lower the isolation you want, the more you change the program
+instead of the environment around it. A rooted phone changes the contract, not the
+scale: identity stops being faked and level 4 becomes real ([tree/root.md](tree/root.md)).
 
-Root is not a fourth question; it changes the answers to all three. So do the
-host (app, `adb shell`, root) and the state rules below.
+## The methods, side by side
 
-## Two kinds of tree
-
-| | **foreign tree (A)** | **poor-host tree (B)** |
-| --- | --- | --- |
-| what it is | a userland the phone lacks: Debian/glibc, Alpine/musl | a layout built from `sh` + toybox (+ one busybox) and your scripts |
-| buys | `apt`, compilers, unmodified software | native speed, no loader problem, a floor as old as Android 6, and **places to live** a foreign tree cannot use |
-| costs | the whole emulation of `/` | you write everything; no package manager |
-| recipe | [build a foreign tree](docs/foreign-tree.md) | [build a poor-host tree](docs/poor-host-tree.md) |
-
-They compose: the durable tree can start the foreign one, and a cluster node or
-a router is exactly that arrangement.
-
-## Four bars
-
-| bar | what it proves | how to check |
-| --- | --- | --- |
-| **1. It boots** | the loader, the shim and the identity layer agree | `id`, `ls -l /usr/lib`, `dpkg -l \| head` |
-| **2. Package management works** | maintainer scripts, hooks and `apt`'s assumptions survive the relocation | `apt-get update && apt-get install figlet` |
-| **3. Real work runs** | the syscall surface is wide enough for a compiler, `git`, Python | build Lua, `git init/add/commit`, `python3 -c 'import os; list(os.walk("/usr"))'` |
-| **4. It comes back** | the tree is a *device*, not a session | simulate a reset: remove its state, reboot, touch nothing ([root](docs/root.md#the-boot-image-frame)) |
-
-A tree that passes 1 and fails 2 has a path problem. A tree that passes 2 and
-fails 3 has a kernel-refusal problem. A tree that passes 3 and fails 4 has not
-decided where it lives.
-
-## What Android gives you, and what it takes away
-
-| | |
-| --- | --- |
-| **Gives** | a Linux kernel (4.4–6.x), `arm64`, ext4/f2fs, normal ELF loading, `/proc`, `/sys`, TCP/IP, hardware faster than a 2015 desktop |
-| **Takes away** | `chroot`, `mount`, `unshare` (no `CAP_SYS_ADMIN`); uid 0; real `setuid`; a full syscall surface (an app-domain seccomp filter *kills*, it does not return `errno`); `/dev` nodes beyond what the domain may open; an `init` you can replace |
-
-Detail, including the three gates and the eight assumptions a `.deb` encodes:
-[the problem](docs/the-problem.md).
-
-## Hosts decide more than methods
-
-| host | uid | app seccomp (Gate A) | `execve` of the tree | survives a reset | fits |
+| method | isolation | cost per program | coverage | speed | maintenance |
 | --- | --- | --- | --- | --- | --- |
-| Termux | app | yes | only at `targetSdk` ≤ 28 | no | building, experimenting |
-| custom APK | app | yes | needs userland exec at `targetSdk` ≥ 29 | no | a product for other people |
-| `adb shell` | `2000` | **no** (`Seccomp: 0`) | yes | no | headless, servers, measuring |
-| root | 0 | no | yes | **yes, from the boot image** | devices you own and must keep alive |
+| [scripts](methods/scripts.md) | 0 | none | only what the host has | native | low |
+| [static binary](methods/static-binary.md) | 0 | none | static builds only | native | low |
+| [rebuild](methods/rebuild.md) | 0–1 | the source | only code you can build | native | medium |
+| [patch package](methods/patch-package.md) | 1 | low, breaks when the tree moves | any editable ELF or script | native | medium |
+| [own libc](methods/own-libc.md) | 1 | hours, once | everything a libc answers | native | high |
+| [loader shim](methods/loader.md) | 0–2 | none | dynamic glibc | near native | medium |
+| [tracer](methods/tracer.md) | 3 | none | everything | slow on metadata | high |
+| [exec](methods/exec.md) | 2 | none | what the kernel refuses to exec | native | medium |
+| [identity](methods/identity.md) | 2–3 | none | the checks the carrier reaches | native | medium |
+| [chroot](methods/chroot.md) | 4–5 | low | everything | native | high |
 
-[hosts](docs/hosts.md) · [root](docs/root.md).
+Read it downwards: each step buys compatibility and pays isolation. Most trees
+end up mixing two or three rows, which is why the same program can have one
+price in the shell domain and another in an app.
 
-## Reading paths
+## Why this can be trusted
 
-- "I want a working tree in ten minutes" → [a foreign tree](docs/foreign-tree.md#recipe-a--proot-distro-ten-minutes)
-- "I want to understand why it breaks" → [the problem](docs/the-problem.md), then [limits](docs/limits.md)
-- "I want a tree that survives a factory reset" → [two kinds](docs/two-kinds-of-tree.md) → [a poor-host tree](docs/poor-host-tree.md) → [root](docs/root.md)
-- "Which of these projects should I use?" → [prior art](docs/prior-art.md)
-- "What does *this* phone actually allow?" → [examples/probe.sh](examples/probe.sh)
+The strength of this guide is not the prose. Every method page carries a real
+example, and every claim is either measured, read in a specification, or marked
+unverified. A few, with the example that shows each one:
 
-## Reading the claims
+| claim | example in this repository |
+| --- | --- |
+| a command is a file, and `check` answers a question | [examples/cmd.sh](examples/cmd.sh) |
+| `PT_INTERP` is one field, and rewriting it is a loop | [examples/elf-interp.sh](examples/elf-interp.sh) |
+| a path shim is small, and its blind spots are structural | [examples/shim-open.c](examples/shim-open.c) |
+| identity is a symbol-level lie that the kernel can expose | [examples/identity.c](examples/identity.c) |
+| the isolation the platform allows is two commands away | [examples/isolate-check.sh](examples/isolate-check.sh) |
+| a loader that the tree names is one `readelf` away | [examples/which-loader.sh](examples/which-loader.sh) |
+
+[reference/examples.md](reference/examples.md) is the index: every example, what it
+demonstrates, and how to check it.
+
+## What no method can skip
+
+A program asks the same few things of any environment, and a method is only a
+choice of who answers: the loader ([tree](tree/README.md)), every absolute path,
+the identity ([methods/identity.md](methods/identity.md)), the right to be
+`exec`ed ([methods/exec.md](methods/exec.md)), and the kernel's refusals
+([reference/problem.md](reference/problem.md)). Leaving one unanswered is a known
+hole, not a TODO.
+
+## Scope
+
+Two supplies of programs, one tree: a **glibc userland** you import
+([tree/glibc.md](tree/glibc.md)) and the **host's own material**
+([tree/bionic.md](tree/bionic.md)). musl is out of scope with its reason in
+[reference/problem.md](reference/problem.md). Debian is the measured supply; the
+contracts are the same for any glibc userland.
+
+The guide is about the question, not about one project that answers it: the
+methods were found across several implementations, and the public ones are
+linked as [prior art](reference/prior-art.md), never as a dependency.
+
+## Labels
 
 Every non-obvious statement is labelled:
 
-- **[m]** — measured on one of the devices in [evidence](docs/evidence.md), on a named date;
+- **[m]** — measured on one of the devices in [evidence](reference/evidence.md), on a named date;
 - **[s]** — read in a specification or in source (AOSP, glibc, the kernel);
-- **[u]** — unverified assumption, or a report from elsewhere that this guide has not reproduced.
-
-There are no unlabelled performance numbers. If a sentence says "faster", it
-says faster than what, on which phone.
+- **[u]** — unverified assumption, or a report this guide has not reproduced.
 
 ## Status
 
-2026-11, pre-alpha, one maintainer. The measurements come from three devices
-across Android 10, 12 and 15, and from two trees that run in production on them:
-a durable poor-host tree on a rooted phone, and a foreign tree on a stock one.
-Where the underlying work is public it is linked:
-[deb-native](https://github.com/jronminh/deb-native) (runtime, GPL-3.0), the
-reference implementation of the hybrid method. Nothing here depends on that
-project existing: [a foreign tree](docs/foreign-tree.md) gives the by-hand path,
-and [prior art](docs/prior-art.md) lists the alternatives.
-
-Corrections with a device and a date are the most useful kind of contribution —
-see [CONTRIBUTING.md](CONTRIBUTING.md).
-
-## Contents
-
-| | |
-| --- | --- |
-| [the problem](docs/the-problem.md) | what is missing; the three gates; the eight assumptions |
-| [two kinds of tree](docs/two-kinds-of-tree.md) | foreign vs poor-host; the four path strategies; the state rule |
-| [methods](docs/methods.md) | the method space (M0–M10), trade-offs, a decision tree |
-| [a foreign tree](docs/foreign-tree.md) | proot in ten minutes, or a native tree by hand |
-| [a poor-host tree](docs/poor-host-tree.md) | busybox first, services, the web face, deploy, what broke |
-| [root](docs/root.md) | what it buys, what it costs, the durability ladder, the boot-image frame |
-| [hosts](docs/hosts.md) | Termux, APK, `adb shell`, root — what each domain gives |
-| [limits](docs/limits.md) | failure catalogue: symptom → cause → what to do |
-| [measure](docs/measure.md) | how to measure honestly on a phone |
-| [prior art](docs/prior-art.md) | proot, glibc-runner, Linux Deploy, WSL1, Waydroid, gVisor |
-| [evidence](docs/evidence.md) | devices, dates, and which claims rest on what |
-| [examples/probe.sh](examples/probe.sh) | one read-only script that answers "what does this phone actually allow?" |
-
-## License
-
-Text: CC BY 4.0. Scripts: MIT. See [LICENSE](LICENSE).
+2026-11, pre-alpha, one maintainer, no CI. Corrections with a device and a date
+are the most useful contribution ([CONTRIBUTING.md](CONTRIBUTING.md)). Text is
+CC BY 4.0, scripts MIT ([LICENSE](LICENSE)).

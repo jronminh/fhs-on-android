@@ -1,4 +1,4 @@
-# 9. How to measure on a phone
+# How to measure on a phone
 
 Phones are noisy computers. They thermal-throttle, they vary by 10–20% between
 identical runs, and every one of them is a different kernel. Almost every
@@ -43,13 +43,15 @@ interleaved with the baseline.
 | build | `tar xf lua-5.4.7.tar.gz && cd lua-5.4.7 && make -j1` | a compiler's syscall mix, close to real work |
 
 Baseline is the same workload **outside** the tree, in Termux or under
-`adb shell`: `find /system` is not a baseline for `find /usr`; use something
+`adb shell` — and in the **same domain** as the tree you measured
+([domains](./domains.md)): a baseline taken in another domain measures the domain,
+not the tree. `find /system` is not a baseline for `find /usr`; use something
 with a comparable file count and namespace.
 
 ## An example of what a result looks like
 
 Measured on one Samsung S10e, Android 12, kernel 4.14 [m, 2026-10], using the
-hybrid method's reference implementation. These are *example* numbers, not a
+hybrid method. These are *example* numbers, not a
 promise about your phone:
 
 | workload | inside the tree | native baseline | ratio |

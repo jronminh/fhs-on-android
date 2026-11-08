@@ -1,6 +1,6 @@
-# 1. The problem
+# The problem
 
-Android's kernel is Linux. Android's userspace is not Linux as a Debian package
+Android's kernel is Linux. Android's userspace is not Linux as a glibc package
 understands it. An FHS tree needs both, and only one of them is available.
 
 This page is the platform model the rest of the guide leans on: what the phone
@@ -10,20 +10,20 @@ Run [examples/probe.sh](../examples/probe.sh) on the phone to get this page's
 numbers for your device instead of trusting the table.
 
 The platform is one half of the story. The other half is what you build on it: a
-**foreign tree** you import, or a **poor-host tree** you assemble from what the
-phone already gives — different costs, different failure classes, different
-places to live ([two kinds of tree](two-kinds-of-tree.md)). This page is the
-half both of them share.
+**a glibc userland** you import, or **the host's own material** assembled from
+what the phone already gives — different costs, different failure classes,
+different places to live ([two kinds of tree](../tree/README.md)). This page
+is the half both of them share.
 
 ## What you actually have
 
 | | on a stock phone | evidence |
 | --- | --- | --- |
-| kernel | 4.4 – 6.x, `aarch64`, ext4/f2fs, full `/proc` and `/sys` | [m] four devices, [evidence](evidence.md) |
+| kernel | 4.4 – 6.x, `aarch64`, ext4/f2fs, full `/proc` and `/sys` | [m] four devices, [evidence](./evidence.md) |
 | uid | one real uid per domain: the app's `u0_aNNN`, or `2000(shell)` over adb. No reachable 0 | [m] |
 | `CAP_SYS_ADMIN` | not held → no `mount`, no `chroot`, no `pivot_root`, no `unshare` of a mount namespace | [m] |
 | `CAP_NET_RAW` | not held → `ping` returns `EPERM`, raw sockets fail | [m] |
-| seccomp | a filter installed by the zygote (apps) or absent (adb shell) | [m] `Seccomp: 0` for uid 2000 |
+| seccomp | a filter installed by the zygote (app domain) or absent (`adb shell`, root) | [m] `Seccomp: 0` for uid 2000 |
 | SELinux | enforcing; the domain decides what the uid *may* do with the files it owns | [m] `getenforce` |
 | `/dev` | only nodes the domain may open; no `/dev/net/tun`, no loop devices, no FUSE for apps | [s] + [m] |
 | PID 1 | Android's `init`; it cannot be replaced and will not run your tree's units | [s] |
@@ -54,15 +54,16 @@ under a supervisor loses its Gate A handling, because nothing is there to catch
 the signal.
 
 The practical corollary: an app-domain tree pays for Gate A, an `adb shell` tree
-does not. `Seccomp: 0` for uid 2000 is why [the ADB host](hosts.md#adb-shell)
+does not. `Seccomp: 0` for uid 2000 is why [the ADB host](./domains.md)
 is the easiest domain on the phone — and why it is the wrong domain for a
 general-purpose app.
 
-## What a Debian package assumes
+## What a package assumes
 
-A `.deb` carries two contracts: an installation contract (`control.tar`, read by
-the package manager) and an execution contract (`data.tar`, enforced by the
-kernel, the loader and libc). The execution contract encodes eight assumptions:
+A package carries two contracts: an installation contract (`control`, read by the
+package manager) and an execution contract (`data`, enforced by the kernel, the
+loader and libc). Debian's `.deb` is the worked instance — `control.tar`,
+`data.tar` — and its execution contract encodes eight assumptions:
 
 | # | assumption | where it lives | gate |
 | --- | --- | --- | --- |
@@ -79,6 +80,12 @@ Assumptions 3, 1 and 6 are text and can be edited. 2 and 5 can be edited in the
 file or redirected at load. 4, 7 and 8 cannot be edited at all — they have to be
 answered.
 
+The worked instance is Debian's `.deb`, and the page is about a glibc package
+([scope](../README.md#the-methods-side-by-side)). The eight sentences hold
+for any glibc package; a musl package answers 2 and 5 with different machinery —
+another loader name, no `ld.so.cache` — so it is a different table, not a
+different row.
+
 **The ordering constraint.** The layer that pays assumptions 1–8 must exist
 **before the first package is installed**, because the package's own `preinst`
 runs binaries that already assume the whole world. This is why "install the tree
@@ -94,7 +101,7 @@ real test of a runtime.
   `chown`, `setuid`, `mount`, `socket(AF_PACKET)`, `io_uring_setup`.
 
 The method follows from the **pair** (A/B) × (editable or not), not from either
-axis alone. That table is in [methods.md](methods.md).
+axis alone. That table is in [the methods](../methods/README.md).
 
 ## What a directory needs to be a "tree"
 
@@ -117,7 +124,7 @@ A Debian tree in a directory is a pile of files until these exist and work:
 8. **A supervisor** for services, because the tree has no PID 1 of its own.
 
 Items 1–3 are the interesting ones and each has more than one solution: that is
-[methods](methods.md).
+[the methods](../methods/README.md).
 
 ## Why not just run everything as root
 
@@ -126,7 +133,7 @@ different project with a different threat model. "Fake root" is not a
 convenience — it is the only way to satisfy assumption 4, and it works only
 because almost nothing verifies privilege through the kernel. What *does*
 verify it (setuid helpers actually changing euid, `mount`, `chown`) is exactly
-the set of things that keep failing, and [limits](limits.md) lists them by
+the set of things that keep failing, and [limits](./limits.md) lists them by
 symptom.
 
 ## The one thing to remember
@@ -134,4 +141,4 @@ symptom.
 The kernel has never heard of your tree. Every byte of progress comes from a
 layer you own standing between the program and the kernel — rewriting a path,
 answering a call, or interpreting an identity. Once you accept that, the choice
-of method ([methods](methods.md)) is a budget question, not a mystery.
+of method ([the methods](../methods/README.md)) is a budget question, not a mystery.

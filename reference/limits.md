@@ -1,10 +1,16 @@
-# 8. Limits: the failure catalogue
+# Limits: the failure catalogue
 
 Symptoms, in the order people meet them. Each row names the cause, which gate or
-class it belongs to ([the problem](the-problem.md)), and the cheapest fix that is
+class it belongs to ([the problem](./problem.md)), and the cheapest fix that is
 honest. Rows marked **unfixable** are not a matter of a better implementation.
 
-## First: which of the three is it?
+The rows assume a glibc program and its packages
+([scope](../README.md#the-methods-side-by-side)), installed with Debian's
+`dpkg`/`apt`: another manager changes the command in a row, not the failure
+class. A musl package is a different table — no `ld.so.cache`, another loader
+name, `apk`'s hooks — and it is not here yet.
+
+## First: is it the loader, the paths, or the kernel?
 
 Before reading the table, one test decides most cases:
 
@@ -20,8 +26,21 @@ ldd ./program                # or: readelf -l ./program | grep interpreter
   path the program computed itself, an identity answer, or a kernel refusal.
 
 Then bisect the layer: turn the shim off, then the userland exec
-([the build recipe](foreign-tree.md#when-bar-2-fails)). If the behaviour changes, the layer
+([the build recipe](../tree/glibc.md#when-it-breaks)). If the behaviour changes, the layer
 is at fault; if it does not, the platform is.
+
+## Which domain are you in?
+
+Several rows below belong to one domain and not another, so name the domain
+before the cause ([domains](./domains.md)):
+
+| symptom | domain | because |
+| --- | --- | --- |
+| the process is killed with `Bad system call` | app | Gate A is `TRAP`: a signal, not an `errno` |
+| `Permission denied` running a `+x` file in the app's data | app, `targetSdk` ≥ 29 | `execve` of app data is refused |
+| the tree is gone after the cable is pulled or `adbd` restarts | shell | nothing outlives the bridge that started it |
+| `mount`, `chroot` and real `chown` succeed | root | the capabilities are real |
+| `/dev/kmsg` is writable and a boot hook fires | root | that is the domain, not the tree |
 
 ## Loader and ELF
 
@@ -70,21 +89,21 @@ is at fault; if it does not, the platform is.
 | `systemctl` says "System has not been booted with systemd" | there is no PID 1 to talk to, and no cgroup delegation | — | a userspace supervisor (`runit`), or run services from the host |
 | `dpkg` blocks on `invoke-rc.d`/`policy-rc.d` | maintainer scripts try to start services during install | — | ship `/usr/sbin/policy-rc.d` returning 101 in the tree |
 
-## Host and packaging
+## Domain, host and packaging
 
 | symptom | cause | fix |
 | --- | --- | --- |
-| `Permission denied` on a `+x` file in app data | `targetSdk ≥ 29`: `execve` of app data is refused (SELinux) | userland exec (M7), or `targetSdk 28` as a stopgap |
+| `Permission denied` on a `+x` file in app data | `targetSdk ≥ 29`: `execve` of app data is refused (SELinux) | [userland exec](../methods/exec.md), or `targetSdk 28` as a stopgap |
 | the tree dies when the cable is unplugged, or after a reboot | the `adbd` domain does not outlive its parent; nothing restarts it | a re-attach loop on the PC side, or an app-domain host |
 | `df` reports the phone's free space, and `apt` hits a quota | the tree lives in app data with a quota; `statvfs` answers for the phone | keep the tree small; `apt clean`; move `var/cache/apt` out |
 | a 51 MB tree becomes a 100 MB asset, or shrinks to half after extraction | the asset is a compressed copy of the tree; sparse files, hardlink tricks and `var/cache/apt` do not survive the round trip | build the asset from a cleaned tree (`apt clean`, no cache, no `ld.so.cache`) and check the *unpacked* size on the device |
 | installs work, then break after an `apt upgrade` | a hook path baked at build time went stale | re-derive hooks from the tree location at every post-change hook |
 | **unfixable**: kernel modules, `iptables`, raw devices, DRM/KMS for an app | not granted to any non-root domain | use the device table (a broker process, or the GPU's own `pass` device) or root |
 
-## A durable tree (poor host, root)
+## A durable tree (host material, root)
 
 These are the failures of bar 4 — "it comes back" — and they are almost never
-about paths ([a poor-host tree](poor-host-tree.md), [root](root.md)).
+about paths ([the host's own material](../tree/bionic.md), [durability](../tree/durability.md)).
 
 | symptom | cause | fix |
 | --- | --- | --- |
@@ -101,8 +120,8 @@ about paths ([a poor-host tree](poor-host-tree.md), [root](root.md)).
 ## How to report a failure
 
 If you open an issue here or anywhere else, include: **which kind of tree**
-(foreign or poor-host), device model, Android version, kernel (`uname -r`), host
-(Termux/APK/adb/root), `Seccomp:` and `CapEff` from `/proc/self/status`, the exact
-command, the exact error, and whether the same command works with the shim off.
-Without the host and the kernel, the same error string means three different
-things.
+(a glibc userland or the host's own material), **which domain** (app, shell, root), device
+model, Android version, kernel (`uname -r`), `Seccomp:` and `CapEff` from
+`/proc/self/status`, the exact command, the exact error, and whether the same
+command works with the shim off. Without the kind, the domain and the kernel,
+the same error string means three different things.
