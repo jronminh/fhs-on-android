@@ -1,0 +1,5 @@
+# The guide is read on Android, in git, and in CI: one line ending for all text.
+* text=auto eol=lf
+
+# A banner is bytes; do not touch it.
+*.png binary
