@@ -1,4 +1,4 @@
-# 6. How to measure on a phone
+# 9. How to measure on a phone
 
 Phones are noisy computers. They thermal-throttle, they vary by 10–20% between
 identical runs, and every one of them is a different kernel. Almost every

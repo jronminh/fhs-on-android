@@ -1,7 +1,8 @@
-# 7. Prior art
+# 10. Prior art
 
-Everything here has been done before, in at least six different ways. Knowing
-which one a project chose — and why — saves you from re-deriving its bug list.
+Everything here has been done before, and along two different questions: *how to
+run foreign binaries* and *how to keep a box alive*. Knowing which one a project
+answered — and why — saves you from re-deriving its bug list.
 
 | project | method | root | real FHS tree | teaches |
 | --- | --- | --- | --- | --- |
@@ -17,15 +18,18 @@ which one a project chose — and why — saves you from re-deriving its bug lis
 | [gVisor](https://gvisor.dev/) | a user-space kernel implementing the syscall surface | — | yes | the opposite extreme: complete, correct, and enormous; only worth it when you need isolation, not compatibility |
 | box64, FEX, qemu-user, iSH | CPU translation / emulation | no | yes | a different axis entirely (M8). Composes with every method above, and changes the performance model rather than the platform model |
 | bubblewrap and friends | user namespaces + `pivot_root` | no | yes | *if* the kernel allows `unshare -Ur`, M3 is the cheapest correct answer on the market; on most stock Android kernels it does not |
-| Magisk, KernelSU | root | yes | yes | the honest shortcut: everything in this guide exists because that shortcut is unavailable |
+| Magisk, KernelSU | root + a patched boot image | yes | — | the honest shortcut, and the only durable mount point on the device: a factory reset clears `/data`, not `boot` — so a tree's **source** belongs there ([root](root.md)) |
+| OpenWrt, as a model rather than a port | procd/UCI/LuCI-shaped management over the device's own tools | no | no | the *management layer* is what makes a headless box usable — service verbs, a vetted command list, one password, a status block per file. Its components do not transplant (no PID 1, no absolute `/etc`, musl plugins); the **shape** does ([a poor-host tree](poor-host-tree.md)) |
+| a source-patched static binary (busybox, dropbear, curl) | build it yourself with the tree's paths compiled in | no | yes | M9 in practice, and the only answer for static code: it cannot be trapped at run time, but it can be taught where it lives ([the four strategies](two-kinds-of-tree.md#the-four-path-strategies)) |
 
 ## What they agree on
 
 Across every implementation, the same three things are true:
 
-1. **Somebody has to rewrite paths**, and the cheapest place is the one the
-   program cannot bypass — the syscall boundary — which is also the most
-   expensive per call. Every project's design is a position on that trade-off.
+1. **Somebody decides where a path points** — at run time (traced, interposed,
+   rewritten), or at build time (taught, or avoided entirely by using the host's
+   own material). Every project's design is a position on that axis and on its
+   price per call.
 2. **Identity is fake.** None of them gives a real uid 0; they all lie
    convincingly, and the lies that fail are the ones a program can verify
    (`setuid` as a real syscall, `mount`, `chown` on the kernel's books).
@@ -47,13 +51,22 @@ Across every implementation, the same three things are true:
   design the reference implementation is moving to, and it is not built yet [u].
 - **GUI and GPU.** A terminal is a solved problem; a window is a device table, a
   compositor and a driver question. Nobody's path layer helps with it.
+- **Durability.** No tree survives a factory reset by being better at paths. It
+  survives because someone put its *source* somewhere the reset does not reach
+  ([root](root.md#the-durability-ladder)), and that is an operations decision,
+  not a syscall one.
+- **A broken framework.** The tree stays up; `svc`, `cmd` and `content` do not.
+  Every project leaves you with two planes, and the rescue path has to live on
+  the native one.
 
 ## If you are choosing today
 
 - **A binary, not a tree** → a glibc bundle (M6).
+- **A box that must survive anything** → a poor-host tree (M10) with its source
+  in the boot image ([a poor-host tree](poor-host-tree.md), [root](root.md)).
 - **A tree, and robustness beats speed** → proot (M2), through `proot-distro`.
 - **A tree, and speed matters** → the hybrid (M5); budget for the three
   components and for keeping one owner of the path rule.
 - **A product for other people's phones** → hybrid + userland exec, in an APK
-  ([04](04-hosts.md#a-custom-apk)).
+  ([hosts](hosts.md#a-custom-apk)).
 - **A lab device you own** → root and `chroot` (M1), and stop reading.

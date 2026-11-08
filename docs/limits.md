@@ -1,7 +1,7 @@
-# 5. Limits: the failure catalogue
+# 8. Limits: the failure catalogue
 
 Symptoms, in the order people meet them. Each row names the cause, which gate or
-class it belongs to ([01](01-the-problem.md)), and the cheapest fix that is
+class it belongs to ([the problem](the-problem.md)), and the cheapest fix that is
 honest. Rows marked **unfixable** are not a matter of a better implementation.
 
 ## First: which of the three is it?
@@ -20,7 +20,7 @@ ldd ./program                # or: readelf -l ./program | grep interpreter
   path the program computed itself, an identity answer, or a kernel refusal.
 
 Then bisect the layer: turn the shim off, then the userland exec
-([03](03-build-a-tree.md#when-bar-2-fails)). If the behaviour changes, the layer
+([the build recipe](foreign-tree.md#when-bar-2-fails)). If the behaviour changes, the layer
 is at fault; if it does not, the platform is.
 
 ## Loader and ELF
@@ -81,10 +81,28 @@ is at fault; if it does not, the platform is.
 | installs work, then break after an `apt upgrade` | a hook path baked at build time went stale | re-derive hooks from the tree location at every post-change hook |
 | **unfixable**: kernel modules, `iptables`, raw devices, DRM/KMS for an app | not granted to any non-root domain | use the device table (a broker process, or the GPU's own `pass` device) or root |
 
+## A durable tree (poor host, root)
+
+These are the failures of bar 4 — "it comes back" — and they are almost never
+about paths ([a poor-host tree](poor-host-tree.md), [root](root.md)).
+
+| symptom | cause | fix |
+| --- | --- | --- |
+| `echo: write error: Permission denied` for `/dev/kmsg`, and the script stops | rootless: the shell itself reports the redirect failure, not the syscall | guard every sink: `[ -w /dev/kmsg ] && ...`; the file log is the portable one |
+| the tree is gone after a factory reset | its source lived in `/data` (anything there is reset) | the source goes in the boot image's `overlay.d`, and a boot script restores it |
+| the tree comes back, but stale | the restore step compared a version it never wrote | write a version file at pack time and make the comparison total (missing = restore) |
+| a setting changed before the reboot is back to its old value after it | the platform's write is delayed | wait ~30 s after a `pm`/`settings` change before rebooting; otherwise the test tested nothing |
+| the boot script cannot find `su` | after a reset the rooting app and `su` are gone from `/data`; init runs the script directly | run from init in the root context; never depend on `su` existing |
+| the overlay silently disappears | re-running the rooting tool's "direct install" regenerates the boot image | re-add the overlay in the same session, and verify it after every rooting update |
+| `cmd`/`svc`/`content` fail while ADB and the tree still answer | the framework (`system_server`, ART) is down; those tools start a runtime per call | keep the rescue path on the native plane: shell, static binaries, ADB |
+| the vendor refuses a device-owner app | attestation tripped by the unlock | the tree is the management surface; do not plan on an app for policy |
+| a new boot image does not fit | the boot partition is small (about 34 MB free with a 29 MB kernel on the reference device) | the boot image carries scripts and one small tarball, not a distribution |
+
 ## How to report a failure
 
-If you open an issue here or anywhere else, include: device model, Android
-version, kernel (`uname -r`), host (Termux/APK/adb/root), `Seccomp:` and
-`CapEff` from `/proc/self/status`, the exact command, the exact error, and
-whether the same command works with the shim off. Without the host and the
-kernel, the same error string means three different things.
+If you open an issue here or anywhere else, include: **which kind of tree**
+(foreign or poor-host), device model, Android version, kernel (`uname -r`), host
+(Termux/APK/adb/root), `Seccomp:` and `CapEff` from `/proc/self/status`, the exact
+command, the exact error, and whether the same command works with the shim off.
+Without the host and the kernel, the same error string means three different
+things.

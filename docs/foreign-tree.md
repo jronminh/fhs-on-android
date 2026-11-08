@@ -1,8 +1,13 @@
-# 3. Build a tree
+# 4. Build a foreign tree
 
-Two recipes. The first gets a working tree in ten minutes and accepts a
-performance cost; the second gets a native-speed tree and expects you to
-understand [02](02-methods.md).
+A tree of kind **A** ([two kinds of tree](two-kinds-of-tree.md)): a userland the
+phone does not have, imported and made to run. Two recipes — the first gets a
+working tree in ten minutes and accepts a performance cost; the second gets a
+native-speed tree and expects you to understand [methods](methods.md).
+
+The other kind — a layout built from the phone's own `sh`, toybox and busybox —
+is [a poor-host tree](poor-host-tree.md), and it is the one that can survive a
+factory reset.
 
 Both start from the same place: an `arm64` phone with
 [Termux](https://github.com/termux/termux-app) installed from F-Droid or GitHub
@@ -48,7 +53,7 @@ Three lessons, all structural:
   now **baked**: move the tree and it breaks. That is why a relocatable loader
   derives its prefix from its own location instead.
 
-[Source: ELF and `ld.so` semantics, plus the relocation work in [07](07-prior-art.md).
+[Source: ELF and `ld.so` semantics, plus the relocation work in [prior art](prior-art.md).
 The exact error strings vary by shell and Android version.]
 
 ## Recipe A — proot-distro, ten minutes
@@ -69,7 +74,7 @@ root in the tree, `apt` unmodified, no root on the phone.
   rule — proot's implementation is the one you have.
 - **Where it breaks:** CPU-bound work is fine; `apt`, `find`, `git status` and
   large `configure` runs are where you will feel it. Measure before deciding it
-  is too slow ([06](06-measure.md)).
+  is too slow ([measurement](measure.md)).
 
 ## Recipe B — a native tree
 
@@ -117,7 +122,7 @@ sed -i '/^[[:space:]]*echo "" > "\$TARGET\//d' ~/tree/debootstrap/debian-common
 
 ### B.2 Decide who resolves the paths
 
-That is [02](02-methods.md). For recipe B the answer is the hybrid (M5): static
+That is [methods](methods.md). For recipe B the answer is the hybrid (M5): static
 rewrite for the entry point, a shim for the dynamic calls, a tracer for the rest.
 The reference implementation of that method is
 [deb-native](https://github.com/jronminh/deb-native):
@@ -169,7 +174,7 @@ env -i HOME=/root PATH=/usr/sbin:/usr/bin:/sbin:/bin \
 `LD_PRELOAD` or `TMPDIR`. A surprising share of "the build fails only on my
 phone" reports are an inherited variable.
 
-### B.4 Boot it and check the three bars
+### B.4 Boot it and check bars 1–3
 
 ```sh
 ~/tree/boot/boot.sh                    # interactive shell, root in the tree
@@ -188,6 +193,12 @@ phone" reports are an inherited variable.
 `figlet` is the canonical bar-2 canary: its `postinst` runs binaries, writes
 `/usr/share`, and touches `/usr/share/figlet`. If `figlet` installs, the
 relocation is healthy.
+
+Bar 4 — *it comes back* — is not about the tree at all: it is where the tree
+lives ([root](root.md)). A minimal foreign tree is ~265 MB, and a boot partition
+leaves tens of megabytes free, so the durable tree is the small one
+([a poor-host tree](poor-host-tree.md)); a foreign tree at that size is restored
+*by* something durable, not *as* one.
 
 ### B.5 Move the tree
 
@@ -237,6 +248,6 @@ In order, and stop at the first one that applies:
    to the plain loader path. If behaviour differs, the birth-time patching is at
    fault.
 4. **Drop `-q`** on the tracer to get the stop counts by kind
-   ([06](06-measure.md) explains what they mean), and verbose output on the
+   ([measurement](measure.md) explains what they mean), and verbose output on the
    first failure only.
-5. Then [05](05-limits.md) — the failure catalogue, by symptom.
+5. Then [limits](limits.md) — the failure catalogue, by symptom.

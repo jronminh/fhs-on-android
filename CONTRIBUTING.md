@@ -8,9 +8,9 @@ The most valuable contribution here is a **correction with a device and a date**
 1. **A contradiction.** Quote the sentence, say what happened instead, and give
    the device, Android version, kernel, host (Termux, APK, `adb shell`, root) and
    date. If it is a speed claim, include the six fields from
-   [docs/06](docs/06-measure.md#reporting).
+   [measure](docs/measure.md#reporting).
 2. **A missing failure.** A symptom you hit that
-   [docs/05](docs/05-limits.md) does not list, with the command, the exact error,
+   [limits](docs/limits.md) does not list, with the command, the exact error,
    and what fixed it. Rows marked *unfixable* are especially welcome when you can
    show one that is not.
 3. **A missing method or project.** With what it does differently, on which
@@ -24,7 +24,7 @@ The most valuable contribution here is a **correction with a device and a date**
 - An unlabelled performance number. `10× faster` is not a claim, it is a
   sentence.
 - A method described as universally best. Every method in
-  [docs/02](docs/02-methods.md) is right somewhere; if yours is right
+  [methods](docs/methods.md) is right somewhere; if yours is right
   everywhere, the description is wrong.
 - A rewrite of the prose into a link farm. Depth over coverage.
 
@@ -49,5 +49,5 @@ If you add a claim that is not a definition or a consequence, add its label.
 ## Process, such as it is
 
 Single maintainer, no CI. Open an issue or a pull request; one claim per
-paragraph makes review a five-minute job. Changes to `docs/05` that correct a
-symptom→cause pair are merged fastest.
+paragraph makes review a five-minute job. Changes to `docs/limits.md` that
+correct a symptom→cause pair are merged fastest.

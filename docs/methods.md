@@ -1,17 +1,21 @@
-# 2. The methods
+# 3. The methods
 
-There are many ways to run an FHS tree on Android and they differ along three
+There are many ways to run a tree on Android and they differ along three
 independent axes. Most confusion in this area comes from mixing the axes, so
 they are separated here first, then combined into concrete methods.
 
-1. **Who resolves the paths?** the kernel, a tracer, a preloaded library, or a
-   rewritten file.
+1. **Who resolves the paths?** the kernel, a tracer, a preloaded library, a
+   rewritten file — or the program itself, taught at build time.
 2. **Who answers the kernel refusals?** nobody (fail honestly), a supervisor that
    traps the signal, or a shim that never issues the call.
 3. **Who produces the identity?** the kernel (real uid), a shim, or a tracer.
 
 Nothing forces one answer per axis, and the good designs mix them per syscall
 class. That is the whole of the design space; everything below is a point in it.
+
+Which *kind* of tree you are building ([two kinds](two-kinds-of-tree.md)) decides
+which of these are even on the table: M2–M7 exist to make foreign code run; M0,
+M9 and M10 are what you use when the host's own material is enough.
 
 ## M0 — Do not translate: build natively
 
@@ -23,16 +27,24 @@ directory. No paths, no gate problems, no loader.
   rebuilt.
 - **Pick it** when you control the source of everything you want to run.
 
+M0 has a second, larger form: instead of one binary, a whole **layout of
+scripts** — a poor-host tree — that uses the host's shell, toybox and busybox and
+adds nothing foreign at all ([a poor-host tree](poor-host-tree.md)). That is the
+only tree that can live in a boot image ([root](root.md)).
+
 ## M1 — root: `chroot` and bind mounts
 
-On a rooted phone the problem disappears: `chroot` to the tree, bind-mount
+On a rooted phone the path problem disappears: `chroot` to the tree, bind-mount
 `/proc`, `/sys`, `/dev`, and the tree is a real root filesystem.
 
 - **Buys** everything: real uid 0, real mounts, native speed, `apt` works
   unmodified, setuid works.
-- **Costs** a rooted device, `busybox` on the host, a boot-time script, and the
-  security model of the phone is now yours to keep.
+- **Costs** a rooted device, and the phone's security model is now yours to keep.
 - **Pick it** when the phone is a lab device and you own the root story.
+
+Root buys more than `chroot`, and costs more than an unlock: what it grants, what
+it takes, and — the part that decides whether your tree survives a reset — where
+state may live, is [root](root.md).
 
 ## M2 — proot: translate at the syscall boundary, no root
 
@@ -47,7 +59,7 @@ identity answers) on every syscall. It needs no privilege, which is why
   `apt`, `git status`, a large `configure`) pays the most; CPU-bound work pays
   almost nothing. Expect a large factor on the first kind and close to 1× on the
   second — measure yours, do not trust a number from someone else's phone
-  ([06](06-measure.md)).
+  ([measurement](measure.md)).
 - **Misses** nothing at the syscall level; it is the method with the fewest
   coverage holes and the highest steady cost.
 
@@ -74,8 +86,7 @@ tree.
   that call `syscall()` directly, syscalls made inside libc itself (NSS, `gconv`,
   `ld.so.cache`), and the loader's own reads before any preload exists.
 - **Pick it** never alone, if the goal is a tree that passes bars 2 and 3
-  ([README](../README.md#three-bars-for-it-works)). It is a fast path, not a
-  method.
+  ([README](../README.md#four-bars)). It is a fast path, not a method.
 
 ## M5 — hybrid: rewrite, interpose, trace
 
@@ -130,8 +141,54 @@ static program) yourself, patch its syscall sites, and jump.
 about paths, and it composes with any method above: an x86 tree inside an arm64
 prefix under `box64` is M5 + M8.
 
-Not covered further here except in [07](07-prior-art.md), because it changes the
+Not covered further here except in [prior art](prior-art.md), because it changes the
 performance model without changing the platform model.
+
+## M9 — teach the program where the tree is
+
+Do not translate at run time: build the program (or patch its source) so every
+absolute path it *owns* points into the tree.
+
+```c
+/* before */  snprintf(home, sizeof home, "/root");
+/* after  */  snprintf(home, sizeof home, "%s/home", s21_tree());
+```
+
+plus `PATH` beginning with `TREE/bin`, key files under `TREE/etc/ssh`, and the
+passwd lookup answered from `TREE/etc/passwd`.
+
+- **Buys** native speed, no tracer, no shim, no loader trick, and it is the only
+  strategy that reaches **static** binaries, which nothing at run time can trap.
+- **Costs** one patch per program, and it is code *you* build; a prebuilt binary
+  is out of reach (and falls to M2/M5).
+- **Pick it** when the program is small, yours to build, and must run forever
+  without a supervisor — a static busybox, dropbear, curl, `tailscaled`.
+
+The honest caveat: the tree becomes the root **for the programs that were
+taught**, not for the kernel. Anything not taught still sees the phone's
+filesystem. That is not a bug in the method; it is its boundary.
+
+## M10 — nothing foreign at all
+
+Write the tree in POSIX `sh` against the host's own tools, and add no binary that
+the host does not have:
+
+- POSIX tools from **one** busybox through a symlink farm (or toybox, if you
+  accept per-version drift);
+- framework actions through the system binaries (`getprop`, `settings`, `svc`,
+  `pm`, `am`, `dumpsys`);
+- the tree's own commands as scripts, its state as files, its UI as CGI over the
+  same files.
+
+- **Buys** a tree that runs on Android 6 and on Android 16 unchanged, needs no
+  loader, no tracer and no privilege, and is small enough to live in a **boot
+  image** — the only place that survives a factory reset ([root](root.md)).
+- **Costs** you write every command, and there is no package manager: a foreign
+  program is still foreign.
+- **Pick it** for a device that must keep working without you.
+
+Full recipe, with what broke on the second device:
+[a poor-host tree](poor-host-tree.md).
 
 ## Combining them: what a complete method needs
 
@@ -147,26 +204,36 @@ empty is a known hole, not a TODO:
 | Gate A (`SIGSYS`) | nothing — the process dies | a handler installed from the first instruction, or a supervisor attached to it |
 | identity (`uid 0`, `chown`, setuid) | shim-level fake answers | shim + tracer for the static/raw cases, with an escape hatch to the real identity |
 | path rule | one function, one owner | the same, and **never** a second copy in another component |
+| absolute paths inside a static binary | nothing at run time | a source patch (M9) — the only answer for static code |
 | service supervision | run services from the host app | a userspace supervisor (`runit`) inside the tree, since there is no PID 1 to give it |
 | `execve` on modern Android | — | userland exec (M7) |
+| surviving a reboot | a `service.d` hook | |
+| surviving a **factory reset** | — | the tree's source in the boot image ([root](root.md#the-durability-ladder)) |
 
 ## Decision tree
 
 ```
-Do you have root?
-├── yes ─────────────────────────────► M1 (chroot + binds). Stop reading.
-└── no
-    Does `unshare -Ur` succeed on the device?   (probe it, do not assume)
-    ├── yes ────────────────────────► M3 (userns + chroot). Native speed, real mounts.
-    └── no
-        Do you need a *tree* (apt, dpkg, a compiler) or just a *binary*?
-        ├── just a binary ──────────► M6 (glibc bundle). Ten minutes, done.
-        └── a tree
-            Is a 2–10× slowdown on metadata-heavy work acceptable?
-            ├── yes ────────────────► M2 (proot). Most robust, least work.
-            └── no ─────────────────► M5 (hybrid) + M7 where the platform
-                                      forbids execve. Read 03, then 05.
+What does the device have to be?
+├── a lab device I own, with a root shell ────────────► M1 (chroot + binds).
+│                                                        Where state may live: root.md
+└── a device that must keep working without me
+    ├── small, headless, must survive a factory reset ► M10 (poor-host tree)
+    │                                                     + root.md for the boot image
+    └── needs real Linux software (apt, compiler)
+        Does `unshare -Ur` succeed on the device?   (probe it, do not assume)
+        ├── yes ────────────────────────────────────► M3 (userns + chroot)
+        └── no
+            just one binary? ───────────────────────► M6 (glibc bundle). Ten minutes.
+            Is a 2–10× slowdown on metadata acceptable?
+            ├── yes ────────────────────────────────► M2 (proot). Most robust.
+            └── no ─────────────────────────────────► M5 (hybrid)
+                                                      + M7 where the platform
+                                                        forbids execve
+                                                      + M9 for static binaries
 ```
+
+Reading paths: [a foreign tree](foreign-tree.md) · [a poor-host tree](poor-host-tree.md)
+· [root](root.md).
 
 ## Two rules that survive every method
 

@@ -1,12 +1,13 @@
-# 4. Hosts
+# 7. Hosts
 
-The runtime is one thing; a **host** is who runs it. The same tree behaves
-differently in each domain, and the differences are not cosmetic — they decide
-whether Gate A exists, whether `execve` of the tree is legal, and how long the
-tree can stay up.
+A **host** is who runs the tree. The same tree behaves differently in each
+domain, and the differences are not cosmetic — they decide whether Gate A
+exists, whether `execve` of the tree is legal, how long the tree can stay up,
+and whether it can come back at all.
 
 This page compares the four domains. Pick the host first; the method
-([02](02-methods.md)) follows from it.
+([methods](methods.md)) follows from it, and for root the durability work
+follows too ([root](root.md)).
 
 ## Termux
 
@@ -66,11 +67,18 @@ a PC.
 
 ## root (Magisk and similar)
 
-A different model entirely: you can `chroot`, bind-mount, and run services from
-`init`. That is M1, and it is out of scope here beyond noting the trade-off —
-the phone's security posture becomes your responsibility, and every "Linux on
-Android" instruction that silently assumes root is misleading for the other 95%
-of devices.
+A different contract: you can `chroot` and bind-mount (M1), run services from
+`init`, and — the part that matters more than either — put the tree's source in
+the **boot image**, the only place a factory reset does not reach.
+
+- **Gives** real uid 0, real mounts, `tun`, raw sockets, softap, ports below
+  1024, a writable kernel log, and durability.
+- **Takes** the unlock (attestation, some vendor features), OTA freedom on
+  devices whose next release removes unlocking, and the responsibility for
+  anything your boot scripts do.
+- **Fits** a device you own and must keep alive: a router, a node, an uplink.
+- **Costs** the whole discipline in [root](root.md): the durability ladder, the
+  boot-image frame, and a rescue path that does not depend on the phone booting.
 
 ## Comparison
 
@@ -82,6 +90,7 @@ of devices.
 | real `chroot`/`mount` | no | no | no | yes |
 | tree location | app data | app data | `/data/local/tmp` | anywhere |
 | survives reboot | if the app starts it | if a service starts it | yes (file), not as a process | yes |
+| survives a **factory reset** | no | no | no | **yes, from the boot image** |
 | survives `adbd` restart | yes | yes | **no** | yes |
 | usable by a normal user | yes | yes | no | no |
 | GUI (X11/Wayland) | with a separate app | the same app | not practical | yes |
@@ -98,7 +107,7 @@ The tree cannot know about Android, so the host answers four questions for it:
 3. **Android services the tree cannot reach** — DNS (the resolver is `netd`),
    clipboard, notifications, and later display/input/audio;
 4. **the device nodes the app domain may open** — for a terminal, almost none;
-   for a GUI, everything becomes a device-table problem ([05](05-limits.md)).
+   for a GUI, everything becomes a device-table problem ([limits](limits.md)).
 
 Keeping those four in the host, and out of the path rule, is what makes one
 runtime serve four hosts instead of four runtimes.
