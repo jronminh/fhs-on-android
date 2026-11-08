@@ -32,6 +32,7 @@ is [isolation](README.md#the-isolation-scale).
 | what is known | [reference/evidence.md](reference/evidence.md) |
 | progress, and what is next | [TODO.md](TODO.md) |
 | the examples, and what each proves | [reference/examples.md](reference/examples.md) |
+| what is not a recipe yet, and why | [recipes/backlog.md](recipes/backlog.md) |
 
 ## Rules
 

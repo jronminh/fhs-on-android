@@ -49,6 +49,14 @@ The second half is the lesson: the **entry point** moved to the copied loader, t
 **libraries** did not — `libc` is still the host's. A patched interpreter relocates
 the start, not the tree.
 
+**Two readers of one field** [s]. At `execve`, the kernel reads the interpreter
+path **from the file**, through `PT_INTERP`'s `p_offset` and `p_filesz`, and never
+maps it; it requires the last byte of the range to be NUL and opens up to the
+first NUL. The loader, by contrast, names **itself** from memory: it takes
+`p_vaddr` and adds the load address. A path longer than the old one therefore has
+to move to a place with room, and `p_vaddr` has to follow it: moving only
+`p_offset` starts the binary and breaks the loader's own name.
+
 **If it fails.**
 
 | symptom | cause | next check |

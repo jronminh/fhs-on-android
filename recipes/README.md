@@ -75,6 +75,10 @@ depend on a component this repository does not ship, and they say so.
 
 ## Sketches, not recipes yet
 
+The full backlog, with costs and what each candidate would teach, is in
+[backlog.md](backlog.md). The table below is the short form: the items with no
+run at all, unnumbered on purpose.
+
 These have a design and no run at all. They are unnumbered on purpose: do not
 follow one as if it were checked.
 
