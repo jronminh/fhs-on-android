@@ -1,4 +1,10 @@
+![fhs-on-android: Linux-shaped trees on Android](assets/banner.png)
+
 # Running a Linux program in an FHS tree on Android
+
+[![license: CC BY 4.0 for the text, MIT for the examples](https://img.shields.io/badge/license-CC_BY_4.0_text_%2B_MIT_examples-6e7681?style=flat-square)](LICENSE)
+[![status: pre-alpha](https://img.shields.io/badge/status-pre--alpha-d97706?style=flat-square)](TODO.md)
+[![checks: links, anchors, sh -n](https://github.com/jronminh/fhs-on-android/actions/workflows/checks.yml/badge.svg)](https://github.com/jronminh/fhs-on-android/actions/workflows/checks.yml)
 
 Two sentences are the whole repository.
 
@@ -12,6 +18,17 @@ The axis this guide uses for cost is **isolation**: how many things stand betwee
 the program and the phone. Isolation is counted as a cost, because a tree on
 Android exists to use the device's kernel, hardware and services, and each layer
 between them reduces what the program can reach.
+
+## The pages
+
+| what you want | open |
+| --- | --- |
+| build the tree: the supply, the layout, where it lives, a rooted phone | [tree/](tree/README.md) |
+| make a program run in it, and what each way costs | [methods/](methods/README.md) |
+| a sequence to type, with its expected output and an undo | [recipes/](recipes/README.md) |
+| the platform, the failure catalogue, the evidence | [reference/](reference/README.md) |
+| what is measured, and what is next | [TODO.md](TODO.md) |
+| how to send a correction | [CONTRIBUTING.md](CONTRIBUTING.md) |
 
 ## The isolation scale
 
@@ -102,7 +119,16 @@ Every non-obvious statement is labelled:
 
 ## Status
 
-2026-11, pre-alpha, one maintainer, no CI. What is measured and what is next is
-kept in [TODO.md](TODO.md). Corrections with a device and a date
-are the most useful contribution ([CONTRIBUTING.md](CONTRIBUTING.md)). Text is
-CC BY 4.0, scripts MIT ([LICENSE](LICENSE)).
+2026-11, pre-alpha, one maintainer. Two checks run on every push: every internal
+link and anchor resolves, and every file in `examples/` parses
+([checks.yml](.github/workflows/checks.yml)). No claim in this repository is
+measured by CI. What is measured and what is next is kept in [TODO.md](TODO.md).
+Corrections with a device and a date are the most useful contribution
+([CONTRIBUTING.md](CONTRIBUTING.md)).
+
+## License
+
+The prose is **CC BY 4.0** ([LICENSE](LICENSE)); the files in `examples/` are
+**MIT** ([LICENSE-MIT](LICENSE-MIT)). Project names in
+[prior art](reference/prior-art.md) belong to their projects, are used
+descriptively, and imply no endorsement in either direction.
