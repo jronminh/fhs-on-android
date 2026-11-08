@@ -69,11 +69,13 @@ bin dev etc proc sys tmp
 | `chroot: exec /bin/sh: No such file or directory`, and `/bin/sh` exists | the applet links are absolute, naming the tree's path from outside | `readlink "$TREE/bin/sh"` must be `busybox` |
 | `mount: Permission denied` | not root in that shell | `id -u` from the same shell |
 | busybox itself refuses to run | it is dynamic, not static | the `readelf` check above |
+| `rm -rf` says `Device or resource busy` | the `/dev` bind is still mounted, with its submounts | `umount -l` it, `mount | grep`, then delete — never delete first |
 
 **Undo.**
 
 ```sh
-umount "$TREE/dev"; umount "$TREE/sys"; umount "$TREE/proc"
+umount -l "$TREE/dev"; umount "$TREE/sys"; umount "$TREE/proc"
+mount | grep -q "$TREE" && { echo "still mounted: stop"; exit 1; }
 rm -rf "$TREE"
 ```
 

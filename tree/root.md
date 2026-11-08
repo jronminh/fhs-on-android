@@ -46,6 +46,24 @@ make a 2.1 MB tree that reports `Debian GLIBC 2.41` from inside the chroot [m].
 The loader must be executable — 0644 gives `Permission denied`, not `ENOENT`,
 which is what an `adb push` produces.
 
+## Deleting a tree safely
+
+A `/dev` bind inside a tree turns `rm -rf` into a delete inside the live `/dev`: the
+mount is busy, `rm` does not stop, and every device node that is not busy is
+unlinked. On 2026-11-08 this took a rooted phone off USB in the middle of a
+session. The reboot rebuilt `/dev` (413 entries, `null`/`zero`/`urandom` working).
+
+The order is not optional:
+
+```sh
+umount -l "$TREE/dev"; umount "$TREE/sys"; umount "$TREE/proc"
+mount | grep -q "$TREE" && { echo "still mounted: stop"; exit 1; }
+rm -rf "$TREE"
+```
+
+`/dev` is not data: it is rebuilt at every boot, so the damage is temporary. The
+shot to your session is not.
+
 ## What root changes for the tree
 
 - **Identity stops being constructed.** `chown`, setuid bits and `id` are the kernel's

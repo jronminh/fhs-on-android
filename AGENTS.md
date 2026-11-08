@@ -43,7 +43,11 @@ is [isolation](README.md#the-isolation-scale).
    ([reference/domains.md](reference/domains.md)).
 4. **Never write to `system`/`vendor`, or flash `boot`, without a recovery path off the
    phone.**
-5. **Examples are illustrations, not tools.** `examples/` holds small files that
+5. **Unmount before you delete.** Never `rm -rf` a tree while `/dev` is still bound into
+   it: the delete descends into the live `/dev` and unlinks device nodes. Lazy-unmount,
+   verify with `mount | grep`, then delete. This is the one mistake in this repository
+   that took a phone off USB (`tree/root.md#deleting-a-tree-safely`).
+6. **Examples are illustrations, not tools.** `examples/` holds small files that
    show a mechanism; they are not the runtime, and the guide is not a runbook. It
    carries contracts, trade-offs and failure signatures.
 

@@ -39,9 +39,11 @@ mount -t sysfs sysfs "$TREE/sys" || log "mount sys: failed"
 mount -o bind /dev "$TREE/dev" || log "bind /dev: failed"
 
 cleanup() {
-    umount "$TREE/dev" 2>/dev/null
+    # Lazy unmount first; a busy /dev bind makes rm descend into the real /dev.
+    umount -l "$TREE/dev" 2>/dev/null
     umount "$TREE/sys" 2>/dev/null
     umount "$TREE/proc" 2>/dev/null
+    mount | grep -q "$TREE" && { echo "still mounted: not removing"; return 1; }
     [ "$KEEP" = 1 ] || rm -rf "$TREE"
 }
 trap cleanup EXIT

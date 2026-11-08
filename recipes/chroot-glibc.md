@@ -61,11 +61,13 @@ system: absent
 | `exec /bin/sh: No such file or directory` | the loader is missing, or the `/lib/ld-linux-aarch64.so.1` link is not there | `ls -l "$TREE/lib/"` |
 | `exec /bin/sh: Permission denied` | the loader exists but is not executable; `adb push` writes 0644 and `cp` keeps it | `ls -l` the loader, then `chmod 755` |
 | `error while loading shared libraries` | `libc.so.6` is not under `lib/aarch64-linux-gnu` | the exact path the loader searches |
+| `rm -rf` says `Device or resource busy` | the `/dev` bind is still mounted | `umount -l`, verify, then delete |
 
 **Undo.**
 
 ```sh
-umount "$TREE/dev"; umount "$TREE/sys"; umount "$TREE/proc"
+umount -l "$TREE/dev"; umount "$TREE/sys"; umount "$TREE/proc"
+mount | grep -q "$TREE" && { echo "still mounted: stop"; exit 1; }
 rm -rf "$TREE"
 ```
 

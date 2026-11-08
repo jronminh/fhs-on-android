@@ -45,6 +45,7 @@ chroot "$TREE" /bin/sh -c '
   [ -d /system ] && echo "   system: present" || echo "   system: absent"
 '
 log "exit: $?"
-umount "$TREE/dev" 2>/dev/null; umount "$TREE/sys" 2>/dev/null; umount "$TREE/proc" 2>/dev/null
+umount -l "$TREE/dev" 2>/dev/null; umount "$TREE/sys" 2>/dev/null; umount "$TREE/proc" 2>/dev/null
+mount | grep -q "$TREE" && { log "still mounted: not removing"; exit 1; }
 rm -rf "$TREE"
 log "cleanup done"

@@ -87,6 +87,7 @@ Setting up figlet (2.2.5-3+b2) ...
 
 ```sh
 umount -l /data/adb/trixie-arm64/dev; umount /data/adb/trixie-arm64/sys; umount /data/adb/trixie-arm64/proc
+mount | grep -q trixie-arm64 && { echo "still mounted: stop"; exit 1; }
 rm -rf /data/adb/trixie-arm64 /data/local/tmp/trixie.tar.gz
 ```
 

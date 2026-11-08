@@ -58,6 +58,9 @@ depend on a component this repository does not ship, and they say so.
 
 - **Every recipe states its basis.** "Recorded" is honest; "run here" is better.
 - **Every recipe ends with undo.** A recipe that cannot be reversed is not offered.
+- **Cleanup order is part of the recipe**: unmount (lazily, for a `/dev` bind), verify
+  with `mount | grep`, then delete. Deleting first unlinks device nodes in the live
+  `/dev` ([root](../tree/root.md#deleting-a-tree-safely)).
 - **Steps are minimal.** A recipe that explains belongs in `methods/`; a recipe that
   guesses is a sketch.
 - **No recipe whose last run was on a different Android version from the one in
