@@ -24,6 +24,7 @@ Two rules for this file:
 | a full Debian tree under `chroot`: 78 packages configured, `apt-get install figlet` works | [recipes/debian-chroot-full.md](recipes/debian-chroot-full.md) |
 | a program cross-built on the host runs inside the tree | [recipes/cross-build.md](recipes/cross-build.md) |
 | one busybox farm, one service with verbs, one supervisor - each run on Android 10, 12 and 15 | [recipes](recipes/README.md) |
+| a raw syscall site patched on disk and at load, in a chroot tree | [recipes/patch-syscall-site.md](recipes/patch-syscall-site.md) |
 | deleting a tree while `/dev` was bound into it took a rooted phone off USB; `/dev` was rebuilt by the reboot (413 entries) | [tree/root.md](tree/root.md#deleting-a-tree-safely); the rule is in [AGENTS](AGENTS.md) |
 
 ## Next, in suggested order

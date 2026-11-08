@@ -55,6 +55,8 @@ a bug in this repository.
 | the tools the farm provides also exist on `/system/bin`, `ip` as iproute2 | [m] | twenty names checked on all three; `ip utility, iproute2-ss171113` |
 | a command with `status`/`check`/`adopt` behaves the same on three Android versions | [m] | adopt then check: 0; tampered intent: 1 with `diff sdk`; 2026-11-08 |
 | a shell supervisor restarts its child without a PID 1 | [m] | 3 starts, 3 respawns, 0 left running on each of the three phones |
+| a syscall site can be patched on disk with four bytes | [m] | `mov x8,#64` → `#172`, pattern unique, chroot run silent; 2026-11-08 |
+| the same patch at load leaves the file unchanged | [m] | `LD_PRELOAD` constructor, same sha256 before and after |
 | the shell domain cannot `chroot` or `unshare -Ur` | [m] | uid 2000, `Seccomp: 0`: `chroot` exit 125, `unshare` exit 1, on Android 10, 12 and 15, 2026-11-08 |
 | root can `chroot`, and still cannot create a user namespace | [m] | Magisk, Android 15: `chroot / /system/bin/true` ok; `unshare -Ur true` says `Invalid argument`, 2026-11-08 |
 | a rooted phone's boot partition is 64 MB in total | [m] | `blockdev --getsize64` on the S21 FE, 2026-11-08 |

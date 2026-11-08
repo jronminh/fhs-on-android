@@ -28,6 +28,7 @@ depend on a component this repository does not ship, and they say so.
 | one busybox, the same options on every phone | [busybox-farm](busybox-farm.md) | run here, three phones | no | 0 |
 | a command with `status`, `check` and `adopt` | [service-verbs](service-verbs.md) | run here, three phones | no | 0 |
 | a child process that comes back when it dies | [supervisor](supervisor.md) | run here, three phones | no | 0 |
+| change what a raw syscall asks for, on disk or at load | [patch-syscall-site](patch-syscall-site.md) | run here, chroot | yes | 1–2 |
 
 ## By constraint
 
