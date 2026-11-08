@@ -21,20 +21,12 @@ Two rules for this file:
 | a path shim maps a name but a static binary still sees the host; a symbol-level identity answers `getuid` but not `fchownat` | [examples](reference/examples.md) |
 | a rootless tree of commands (72 KB), a busybox chroot (1.7 MB) and a glibc chroot (2.1 MB), each as a recipe with an undo | [recipes](recipes/README.md) |
 | a Debian arm64 userland on a host: 64 s and 225 MB with `debootstrap --foreign` | [recipes/ingredients-debian.md](recipes/ingredients-debian.md) |
+| a full Debian tree under `chroot`: 78 packages configured, `apt-get install figlet` works | [recipes/debian-chroot-full.md](recipes/debian-chroot-full.md) |
+| a program cross-built on the host runs inside the tree | [recipes/cross-build.md](recipes/cross-build.md) |
 
 ## Next, in suggested order
 
-### 1. A full glibc tree under `chroot`
-
-The 2.1 MB tree proves the loader and libc work. It does not prove a *package*
-manager works at level 4. Take a real glibc userland (a few hundred MB), bind
-`proc`/`sys`/`dev`, chroot, and run `apt-get update && apt-get install figlet`.
-
-- **settles:** the package-manager check at level 4;
-- **needs:** a rooted phone, ~400 MB free, one session;
-- **output:** the last lines of `apt-get`, and a row in [evidence](reference/evidence.md).
-
-### 2. Own the libc
+### 1. Own the libc
 
 Build glibc from source on a Linux host (the LFS bootstrap), then run it under
 `chroot` on the phone. Record what breaks: the loader path the programs name, the
@@ -44,7 +36,7 @@ cache, locales.
 - **needs:** hours on a host, no phone root;
 - **output:** a build transcript reduced to the failure signatures, plus one run.
 
-### 3. Two CI checks
+### 2. Two CI checks
 
 A single workflow, no device: (a) every internal link and anchor resolves;
 (b) every file in `examples/` passes `sh -n`, and the two C files pass
@@ -53,7 +45,7 @@ A single workflow, no device: (a) every internal link and anchor resolves;
 - **settles:** drift - a rename that breaks a link, a script that stops parsing;
 - **needs:** nothing but a workflow file.
 
-### 4. User namespaces, on more devices
+### 3. User namespaces, on more devices
 
 `unshare -Ur true` is refused on the three phones here, including as root. Probe
 more kernels and ROMs before writing level 4 without root off entirely.
@@ -61,7 +53,7 @@ more kernels and ROMs before writing level 4 without root off entirely.
 - **settles:** whether the rootless half of level 4 exists anywhere;
 - **output:** one row per device in [evidence](reference/evidence.md).
 
-### 5. A virtual machine (level 5)
+### 4. A virtual machine (level 5)
 
 AVF on a supported device, with a tree inside it: what it can reach, what it
 cannot, and what the tree costs in there.
@@ -69,7 +61,7 @@ cannot, and what the tree costs in there.
 - **settles:** the last row of the isolation scale;
 - **needs:** a device with AVF and a lot of patience.
 
-### 6. Re-run the multi-distro case
+### 5. Re-run the multi-distro case
 
 A second glibc supply (an Ubuntu or Arch tree) under the same core, so the claim
 that the loader comes from the program is reproducible from this repository.

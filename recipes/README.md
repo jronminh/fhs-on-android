@@ -23,6 +23,8 @@ depend on a component this repository does not ship, and they say so.
 | a glibc tree with no root, over adb | [no-root-glibc](no-root-glibc.md) | recorded | no | 1–3 |
 | deploy a script tree over adb | [host-tree-deploy](host-tree-deploy.md) | recorded | no | 0 |
 | a tree that survives a factory reset | [boot-image-durable](boot-image-durable.md) | recorded | yes | - |
+| a full Debian tree with a working package manager | [debian-chroot-full](debian-chroot-full.md) | run here | yes | 4 |
+| build a program for the tree on the host | [cross-build](cross-build.md) | run here | yes, needs a tree | 1 |
 
 ## By constraint
 
@@ -36,6 +38,8 @@ depend on a component this repository does not ship, and they say so.
 | no glibc userland to copy files from | [ingredients-debian](ingredients-debian.md): 64 s, 225 MB on a host |
 | only a Linux host, no phone | [ingredients-debian](ingredients-debian.md), [patch-interp](patch-interp.md), [symbol-shim](symbol-shim.md), [identity-symbols](identity-symbols.md) |
 | a boot image you are willing to risk | [boot-image-durable](boot-image-durable.md), only with a saved original |
+| network on the phone for `apt` | [debian-chroot-full](debian-chroot-full.md) |
+| a host cross-compiler | [cross-build](cross-build.md) |
 
 ## The shape of a recipe
 
@@ -66,7 +70,7 @@ follow one as if it were checked.
 
 | sketch | what would make it a recipe |
 | --- | --- |
-| an imported glibc userland built with `debootstrap` and configured by a second stage | one full build on one phone, then `apt-get install figlet` |
+
 | a glibc program without root using only this repository's parts | a runtime that starts the tree on an unrooted phone, and one run of one program |
 | `PT_INTERP` rewritten in every `.deb` before `dpkg` | a run against a real package set, with the loader path and the failure mode |
 | a virtual machine as the host (isolation 5) | an AVF device, a tree inside it, and one program's output |
