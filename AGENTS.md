@@ -26,6 +26,8 @@ is [isolation](README.md#the-isolation-scale).
 | the tree does not exist yet | [tree/glibc.md](tree/glibc.md) or [tree/bionic.md](tree/bionic.md) |
 | the tree exists, a program will not run | [reference/limits.md](reference/limits.md) |
 | choosing between approaches | [methods/README.md](methods/README.md) |
+| a known goal, step by step | [recipes/README.md](recipes/README.md) |
+| what to cook with | [recipes/tools.md](recipes/tools.md) |
 | "does this phone allow it" | [examples/probe.sh](examples/probe.sh) |
 | what is known | [reference/evidence.md](reference/evidence.md) |
 | progress, and what is next | [TODO.md](TODO.md) |

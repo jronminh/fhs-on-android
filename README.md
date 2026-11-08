@@ -48,6 +48,13 @@ Moving down the table gains compatibility and loses reach. A tree usually
 combines two or three rows, and the same program carries a different cost in each
 domain.
 
+## Recipes
+
+Steps are in [recipes/](recipes/README.md): four goals, each tested on a named
+device or host, each with its expected output and an undo, and a page on the
+tools they assume ([recipes/tools.md](recipes/tools.md)). The pages here explain
+and cost; the recipes say what to type.
+
 ## Evidence in the repository
 
 Each method page is paired with a file in `examples/`, and each claim is

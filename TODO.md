@@ -19,6 +19,8 @@ Two rules for this file:
 | level 4 with a glibc tree: 2.1 MB, `Debian GLIBC 2.41` reported from inside, `dash` runs | [chroot](methods/chroot.md) |
 | the three loader states: no loader `ENOENT`, loader at 0644 `EACCES`, 0755 runs | [chroot](methods/chroot.md#the-two-loader-states-that-come-first) |
 | a path shim maps a name but a static binary still sees the host; a symbol-level identity answers `getuid` but not `fchownat` | [examples](reference/examples.md) |
+| a rootless tree of commands (72 KB), a busybox chroot (1.7 MB) and a glibc chroot (2.1 MB), each as a recipe with an undo | [recipes](recipes/README.md) |
+| a Debian arm64 userland on a host: 64 s and 225 MB with `debootstrap --foreign` | [recipes/ingredients-debian.md](recipes/ingredients-debian.md) |
 
 ## Next, in suggested order
 
