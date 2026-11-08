@@ -8,13 +8,16 @@ so that a gap is a decision and not an omission.
 
 | candidate | teaches | needs | cost |
 | --- | --- | --- | --- |
-| **netlink, and what leaks** | a tree that reads the phone's interfaces through netlink sees the *host's* truth; that is a documented leak, not a bug | a chroot tree | minutes |
+| **netlink, and what leaks** | a tree that reads the phone's interfaces through netlink sees the *host's* truth; that is a documented leak, not a bug ([mechanisms](../reference/mechanisms.md#what-leaks)) | a chroot tree | minutes |
+| **a terminal in a tree** | the PTY is a kernel object the host may lend: `/dev/ptmx` and `TIOCGPTN` either work in a domain or there is no substitute ([mechanisms](../reference/mechanisms.md#a-terminal)) | a probe on each phone and domain, then one interactive shell | minutes |
 | **a 32-bit userland in a 64-bit phone** | `debootstrap --arch=armhf`: a tree that runs armhf binaries while bionic is 64-bit | kernel 32-bit support; 60 s build | minutes |
 | **the three lookups of `ld.so`** | search order without a cache: default dirs, `LD_LIBRARY_PATH`, `ld.so.cache`; and what `ldconfig` writes | a small glibc tree | minutes |
 | **two roots, one terminal** | sibling userlands with no containment: `PATH` and a nested shell, `exit` returns; nothing isolates them | three phones | minutes |
 | **`--force-architecture` is not `--add-architecture`** | dpkg's two mechanisms, and why a path still moves | a host with dpkg | a minute |
-| **a maintainer script keeps a raw shebang** | `dpkg --configure` fails because the kernel runs the script without the shim; the fix is rewriting *every* shebang | a package-manager tree | minutes |
-| **an alternatives link outside the prefix** | `update-alternatives` joins compiled-in absolute dirs, so the link lands in the host tree | a package-manager tree | minutes |
+
+Two former candidates are no longer candidates: a maintainer script that keeps a
+raw shebang, and an `update-alternatives` link that lands outside the prefix, are
+both steps of [translate-debs](translate-debs.md) now.
 
 ## Needs a runtime — sketch until one exists
 

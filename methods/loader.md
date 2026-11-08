@@ -19,10 +19,14 @@ it grows with the number of linked libraries [m].
 
 - **A startup floor nothing can answer**: the loader's own reads happen before any
   constructor of yours runs.
-- **Blind spots** for the shim: static binaries, raw syscall(), anything libc does
-  before or around it.
+- **Blind spots** for the shim: static binaries, raw `syscall()`, anything libc does
+  before or around it. The rows it cannot reach are listed in
+  [every reader of a coordinate](../reference/surfaces.md).
 - **The ABI floor**: a shim built against a newer glibc than the tree carries fails
   to load, so record which libc it was built against.
+- **A live patch is a W^X problem.** The site is in a file-backed text page, so
+  the patch has to go against a private mapping (the recipe does exactly that),
+  and BTI/PAC on newer cores is a forward risk for any patched instruction [s].
 - **A fragile patch**: the in-loader syscall patch is the part that breaks, so keep
   a way to boot with it off.
 

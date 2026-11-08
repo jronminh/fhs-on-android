@@ -20,6 +20,10 @@ do not need the package manager, [the host's own material](bionic.md) is cheaper
    its own location; an unprivileged `tar` drops setuid bits, so the build records
    them and the boot restores them.
 
+A distribution's libc need not be forked to get the tree's paths: the smallest
+import keeps the distribution's `libc6` and `libc-bin` whole and replaces the
+**ten files** a patch changes ([patched libc](../methods/patched-libc.md)).
+
 ## It runs under chroot
 
 A minimal glibc tree — `dash`, `libc.so.6`, `ld-linux-aarch64.so.1` — is **2.1 MB**

@@ -41,6 +41,12 @@ you which layer can fix which failure, and which failures no layer can fix.
 | **B — capability / kernel config** | the kernel (missing capability, feature compiled out) | a normal `errno` (`EPERM`, `EINVAL`, `ENOSYS`) | yes |
 | **C — mandatory access policy** | SELinux | a normal `errno` (`EPERM`) | yes |
 
+Which calls each layer refuses, counted per device and per kernel, is
+[syscalls.md](syscalls.md): the filter's set is a release's policy, and the
+kernel's set is its version. What each kernel facility offers a tree — a PTY,
+shared memory, netlink, a supervisor — is [mechanisms.md](mechanisms.md), and
+which device nodes exist is [devices.md](devices.md).
+
 All three act **before** libc's own code is considered. That is why patching or
 rebuilding a library cannot move a program through them: the library can choose
 *differently* inside its own code, but the kernel still decides afterwards.

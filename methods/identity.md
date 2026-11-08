@@ -12,6 +12,21 @@ asks "who am I" in at least five ways, and no single technique reaches all of th
 - `/etc/passwd`, `group`, `shadow` exist in the tree and agree with the answers;
 - a program that *verifies* privilege fails, and the failure is not hidden.
 
+## The model
+
+- **One real uid, virtual principals.** The kernel has one uid per process; every
+  other id — `root`, `www-data`, a group — is a name in `/etc/passwd` and
+  `/etc/group`, which is the tree's file. So "who am I" is answered twice, by the
+  kernel (one number) and by the files (many names), and the two must agree.
+- **There is no separate root mode.** Whether a process is root is its effective
+  uid; every decision keys on that, so a layer that fakes `geteuid` has to fake it
+  for every reader, and a setuid bit is a change of euid at `exec` — which is why
+  the setuid bit is a gate and not a flag [s].
+- **Tree-root is not real root.** A program that checks with a privileged call
+  (`setuid`, `mount`, an owner read back through the kernel) gets the kernel's
+  answer, and the kernel does not know about the tree [s]. Those are the rows the
+  failure catalogue collects.
+
 ## Which carrier answers which check
 
 | the check | answered by | what it costs |

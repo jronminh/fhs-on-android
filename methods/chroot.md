@@ -39,18 +39,10 @@ mount -o bind /dev "$TREE/dev"
 chroot "$TREE" /bin/sh -c 'PATH=/bin; id; uname -r; ls /'
 ```
 
-Measured output, 2026-11-08, Magisk phone (Android 15, kernel 5.4.242) [m]:
-
-```
-tree: 359 applets, 1721 KB
-id       : uid=0(root) gid=0(root)
-rootfs   : bin dev etc proc sys tmp
-static   : runs
-isolation: /system -> ls: /system: No such file or directory
-```
-
-The last two lines are the trade in one screen: a static binary runs and needs
-nothing from the phone, while the phone's own `/system` is out of reach.
+The measured output — the applet count, `uid`, the rootfs and the `/system` line —
+is one run, and it is kept once: [the level-4 run](../tree/root.md#level-4-end-to-end)
+holds the block and what it means. The short version: a static binary runs and
+needs nothing from the phone, while the phone's own `/system` is out of reach.
 
 ### With a glibc userland
 

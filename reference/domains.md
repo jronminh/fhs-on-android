@@ -59,6 +59,18 @@ on devices whose next release removes unlocking.
 | usable by a normal user | yes | yes | no | no |
 | typical use | building, experimenting | the product | headless, measuring | lab devices |
 
+Three consequences of that table, each easy to miss:
+
+- **`targetSdk` is an app concept.** The app hosts inherit their app's, with
+  scoped storage, the W^X rule on app data and the per-SDK filter; the shell has
+  no manifest and runs `Seccomp: 0`, so what remains there is the Android
+  version, the OEM's policy and the kernel's own gates [s].
+- **The tree and the runtime build are two decisions.** The same tree can move
+  between hosts, but its build cannot: see "What a host must supply" below.
+- **No host is a sandbox.** The tree is the host's identity, and any process in
+  it reaches what that identity can — in the shell tier that is a great deal
+  ([the failure catalogue](limits.md), "Domain, host and packaging") [s].
+
 ## What a host must supply
 
 The tree cannot know about Android, so the host answers four questions: the
@@ -67,6 +79,13 @@ is, which binds, which host variables to keep); the Android services the tree
 cannot reach (DNS — the resolver is `netd` — clipboard, notifications); and the
 device nodes the domain may open. Keeping those in the host, and out of the path
 rule, is what makes one runtime serve several hosts.
+
+A fifth thing is not a question but a **match**: the runtime build a host carries
+must suit its realm. An app host needs the app build, with the app domain's
+answers compiled in; the shell needs the adb build, where they are compiled out.
+A tree can move between hosts with `tar` and `adb push`, but a build for one
+realm can miss the other's answers, so a launcher that records the host may
+refuse it [s].
 
 ## How to tell which domain you are in
 

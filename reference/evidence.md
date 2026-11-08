@@ -11,9 +11,10 @@ a label on every claim.
 | Samsung Galaxy S10e (SM-G970W) | 12 | 4.14.190 | app, shell | the main measurement device for the glibc supply; all numbers in [measurement](./measure.md) |
 | Sharp 701SH (SDM660, 3 GB) | 10 | 4.4.205 | shell | oldest kernel in the set; where "it works on 4.4 too" was checked, and the first **rootless** run of a bionic-native tree |
 | Samsung Galaxy S21 FE (SM-G990E) | 15 | 5.4.242 | root | the host-material tree in production (24/7 uplink), the boot-image overlay, the durability claims |
-| Samsung Galaxy S23 FE | 16 | — | app | builds an APK host, and the second-generation runtime target |
+| Samsung Galaxy S23 FE | 16 | 5.10 | app | builds an APK host, and the second-generation runtime target |
 
-Kernel versions that are not filled in are not recorded, and are not guessed.
+The S23 FE's kernel is the project census's (2026-10-16), not a read on this
+guide's device. A version nobody recorded stays empty rather than guessed.
 
 ## Labels
 
@@ -51,7 +52,7 @@ a bug in this repository.
 | `cmd`/`svc`/`content` survive or die with the framework; ADB does not | [m] | both devices; `svc` moved from ART to `cmd` between Android 10 and 15 |
 | a bionic program's `PT_INTERP` is `/system/bin/linker64` | [m] | read on Android 12 and 15, 2026-11-08 |
 | `readelf` is absent before Android 12 | [m] | sdk 29 has toybox without it; sdk 31 and 35 have it |
-| the same static busybox works on Android 10, 12 and 15 | [m] | one 1.36.1.1 binary, 358 applets, identical on three phones, 2026-11-08 |
+| the same static busybox works on Android 10, 12 and 15 | [m] | one 1.36.1.1 binary (the rooting tool's build), 358 applets, identical on three phones, 2026-11-08. Its libc is **not recorded**, so this row is evidence for a static binary, not yet for a static *glibc* one [u] |
 | the tools the farm provides also exist on `/system/bin`, `ip` as iproute2 | [m] | twenty names checked on all three; `ip utility, iproute2-ss171113` |
 | a command with `status`/`check`/`adopt` behaves the same on three Android versions | [m] | adopt then check: 0; tampered intent: 1 with `diff sdk`; 2026-11-08 |
 | a shell supervisor restarts its child without a PID 1 | [m] | 3 starts, 3 respawns, 0 left running on each of the three phones |
@@ -66,8 +67,17 @@ a bug in this repository.
 | a minimal FHS tree runs under `chroot` on a rooted phone | [m] | one static busybox, 359 applets, 1721 KB; `uid=0`, `/proc` readable, `/system` absent, 2026-11-08 |
 | applet symlinks must be relative inside a chroot | [m] | absolute links gave `exec /bin/sh: No such file or directory`; `ln -sfn busybox sh` fixed it |
 | a dynamic glibc program runs under `chroot`, no shim, no tracer | [m] | a 2.1 MB tree (`dash` + `libc.so.6` + loader); `Debian GLIBC 2.41` reported from inside, 2026-11-08 |
+| a distribution's userland runs on the Android kernel; what a libc delta changes is userland convention, not the ABI | [m][s] | a full Debian tree with `apt` ([tree/glibc.md](../tree/glibc.md)); and the ten-file set below, which touches paths, passwd and group lookup, IPC availability and the loader's preload, and no syscall number |
+| a distribution's glibc runs a distribution's programs with **ten files** replaced | [s][u] | the ten files are listed in deb-native `core/install/dn-fix-glibc.sh` (commit `f0331fe`, 2026-10-05) with the restore that re-applies them after apt [s]; the approach was retired at `2a69cba` (2026-10-12), so this guide has not re-run it [u] ([patched libc](../methods/patched-libc.md)) |
 | an unexecutable loader is `EACCES`, not `ENOENT` | [m] | loader at 0644: `exec /bin/sh: Permission denied`; at 0755 it runs - the trap `adb push` sets |
 | `CapEff` is `0` in the shell domain and full as root | [m] | `0000003fffffffff` as root against `0` as uid 2000, 2026-11-08 |
+| the app-domain filter allows 201 of the 457 numbers it admits on the S10e, kills 256, and 32 of those the kernel implements | [m] | the project's census, 2026-10-13/16: one `syscall(n)` per number, 0..470 with 14 skipped ([syscalls](syscalls.md)) |
+| arm64's table only grows: 266 calls on 4.14, 328 in Debian 13's headers, 62 of them the phone lacks | [s] | `include/uapi/asm-generic/unistd.h` at each kernel tag ([syscalls](syscalls.md)) |
+| an allowed call can still be unserved: on 5.10, `epoll_pwait2` answers `ENOSYS` and `openat2`'s path needs translating | [m] | the census's Android 16 device ([syscalls](syscalls.md)) |
+| an entry script's core works from `/data/local/tmp`: `env -i`, a resolved root, `cd`, `pwd -P`, then `exec` | [m] | run on both phones, 2026-11-08: `uid=2000`, `cwd` the tree, `PATH` the script's ([the entry recipe](../recipes/entry-script.md)) |
+| `/dev/ptmx` opens read-write in the shell domain | [m] | 2026-11-08, both phones (Android 12 and 10): a read and a read-write open both succeed ([mechanisms](mechanisms.md)) |
+| `SECCOMP_RET_USER_NOTIF` is refused on 4.14 (`EINVAL`) and present on 5.10 | [m][s] | the runtime's own test on the S10e, and the kernel's interface ([mechanisms](mechanisms.md), [tracer](../methods/tracer.md)) |
+| the syscall ABI and the A64 base are permanent, while a library's internals move | [s] | the kernel's `uapi` headers and the base instruction set ([stability](stability.md)) |
 
 ## What is deliberately not claimed
 

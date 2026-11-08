@@ -55,6 +55,7 @@ scale: identity stops being faked and level 4 becomes real ([tree/root.md](tree/
 | [rebuild](methods/rebuild.md) | 0–1 | the source | only code you can build | native | medium |
 | [patch package](methods/patch-package.md) | 1 | low, breaks when the tree moves | any editable ELF or script | native | medium |
 | [own libc](methods/own-libc.md) | 1 | hours, once | everything a libc answers | native | high |
+| [patched libc](methods/patched-libc.md) | 1 | ten files per release | everything a libc answers, if the patch covers it | native | medium |
 | [loader shim](methods/loader.md) | 0–2 | none | dynamic glibc | near native | medium |
 | [tracer](methods/tracer.md) | 3 | none | everything | slow on metadata | high |
 | [exec](methods/exec.md) | 2 | none | what the kernel refuses to exec | native | medium |
@@ -95,7 +96,9 @@ A program asks the same few things of any environment, and a method is only a
 choice of who answers: the loader ([tree](tree/README.md)), every absolute path,
 the identity ([methods/identity.md](methods/identity.md)), the right to be
 `exec`ed ([methods/exec.md](methods/exec.md)), and the kernel's refusals
-([reference/problem.md](reference/problem.md)). Leaving one unanswered is a known
+([reference/problem.md](reference/problem.md), and the counted sets in
+[reference/syscalls.md](reference/syscalls.md) and
+[reference/mechanisms.md](reference/mechanisms.md)). Leaving one unanswered is a known
 gap that the page names.
 
 ## Scope

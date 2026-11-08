@@ -7,7 +7,8 @@ would not. It has the widest coverage of the surfaces here: it catches static bi
 
 ## What it buys
 
-- **Coverage nothing else has**: static binaries and raw syscalls included.
+- **Coverage nothing else has**: static binaries and raw syscalls included; the
+  full list of readers is [every reader of a coordinate](../reference/surfaces.md).
 - **No per-file work**: the same tracer runs a tree it has never seen.
 - **One place for the kernel's refusals**: a trap can become `ENOSYS` or `EPERM`
   so software can fall back instead of being killed.

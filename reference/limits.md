@@ -24,6 +24,9 @@ ldd ./program                # or: readelf -l ./program | grep interpreter
   class A;
 - **shows the tree's libraries** — the entry point is fine, so the failure is a
   path the program computed itself, an identity answer, or a kernel refusal.
+- **dies on one call** — compare that call with [syscalls.md](syscalls.md): a
+  signal is the app's filter (`SIGSYS`), an `ENOSYS` is the kernel's version, an
+  `EPERM` is a capability or a policy.
 
 Then bisect the layer: turn the shim off, then the userland exec
 ([the build recipe](../tree/glibc.md#when-it-breaks)). If the behaviour changes, the layer
@@ -49,6 +52,7 @@ before the cause ([domains](./domains.md)):
 | `No such file or directory` running a file that exists | the kernel resolved `PT_INTERP` against the **real** root and got `ENOENT` | A | make the interpreter resolvable: rewrite `PT_INTERP`, or run the tree's loader explicitly, or let the runtime's exec decide |
 | `error while loading shared libraries: libfoo.so.1: cannot open shared object file` | `DT_NEEDED` resolved through the real root's cache, not the tree's | A | the tree's own `ld.so.cache` (`ldconfig` inside the tree) is the correct fix; `LD_LIBRARY_PATH` is the quick one and is scrubbed at trust boundaries |
 | `cannot execute: required file not found` (glibc's own message) | the loader ran and could not find the program or a library | A | as above; check the program's own `ldd` under the loader |
+| every program aborts at start, naming a preload or a `GLIBC_` version | an inherited `LD_PRELOAD` from the host reached a loader that does not drop it | A | unset it; the patched loader skips it ([patched libc](../methods/patched-libc.md)) |
 | `Exec format error` on a valid `arm64` binary | wrong architecture (an `amd64` tarball, or an `armhf` one) | — | check `readelf -h`; `uname -m` says `aarch64` |
 | `Text file busy` while patching a binary | the file is being executed, or was executed from this inode | — | write to a temp name and `rename(2)` |
 | works at 4 KB pages, fails on a 16 KB-page device | segment alignment and native-lib packaging assume 4 KB | — | build/link for 16 KB; this is a build-system property, not a runtime one [s]/[u] per device |

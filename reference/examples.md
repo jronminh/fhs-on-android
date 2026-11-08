@@ -15,6 +15,8 @@ This page is the index: example -> what it demonstrates -> how to check it.
 | [shim-open.c](../examples/shim-open.c) | a path shim in one symbol, and the blind spots named in its header | build it and run a dynamic program with `LD_PRELOAD` |
 | [identity.c](../examples/identity.c) | identity answered at the symbol layer, and the checks that still fail | `LD_PRELOAD` it and run `id` |
 | [isolate-check.sh](../examples/isolate-check.sh) | the isolation the platform allows is two commands away | run it in each domain |
+| [libc-swap.sh](../examples/libc-swap.sh) | the ten-file swap as a stash plus an idempotent restore, with the manifest beside it | point it at a tree and a patched set; it prints `stashed: 10 files` and `restored: 10 files` |
+| [syscall-count.sh](../examples/syscall-count.sh) | the arm64 syscall count per kernel, from the kernel's own header | run it on `unistd.h` fetched at `v4.14`, `v5.10`, `v6.1`, `v6.12`: 266, 306, 316, 328 |
 | [build-bionic.sh](../examples/build-bionic.sh) | owning the build, and finding the paths the tree must then teach | `CC=` an NDK clang, then run it on a source file |
 | [count-stops.sh](../examples/count-stops.sh) | what a tracer would be paid: the syscalls a workload makes | run it on a Linux host with `strace` |
 | [probe.sh](../examples/probe.sh) | what the phone itself allows: gates, capabilities, nodes | run it on the phone, read-only |

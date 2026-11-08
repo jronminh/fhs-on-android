@@ -14,6 +14,7 @@ pages state what it buys, what it costs, and when you would pick it.
 | [rebuild](rebuild.md) | 0–1 | own the build, against bionic or the tree's glibc | you need the source |
 | [patch package](patch-package.md) | 1 | edit the files: `PT_INTERP`, shebang, rpath, repack | the path is baked |
 | [own libc](own-libc.md) | 1 | patch or build the libc itself | you maintain it |
+| [patched libc](patched-libc.md) | 1 | the distribution's libc with ten files replaced | ten files to keep in step |
 | [loader shim](loader.md) | 0–2 | a preloaded DSO, and a loader that derives its prefix | blind spots |
 | [exec](exec.md) | 2 | map the program yourself when the kernel refuses | the ELF loading contract |
 | [identity](identity.md) | 2–3 | answer `uid`, `chown`, setuid across the surfaces | one owner, or contradictions |

@@ -17,6 +17,12 @@ depend on a component this repository does not ship, and they say so.
 | an FHS root that runs a static binary | [chroot-busybox](chroot-busybox.md) | run here | yes | 4 |
 | an FHS root that runs a dynamic glibc program | [chroot-glibc](chroot-glibc.md) | run here | yes | 4 |
 | the Debian files those need, built on a host | [ingredients-debian](ingredients-debian.md) | run here, host | - | - |
+| a distribution's glibc with the tree's paths | [glibc-swap](glibc-swap.md) | recorded | no | 1 |
+| install Debian packages into a tree | [translate-debs](translate-debs.md) | recorded | no | 1 |
+| an entry a launcher can call | [entry-script](entry-script.md) | run here, two phones | no | - |
+| a compiler in the tree that links right | [gcc-in-tree](gcc-in-tree.md) | recorded | no | 1 |
+| a DSO preloaded by the loader, not the env | [preload-shim](preload-shim.md) | recorded | no | 2 |
+| one program and its closure, no tree | [bundle](bundle.md) | recorded | no | 1 |
 | point a binary at another loader | [patch-interp](patch-interp.md) | run here, host | - | 1 |
 | prefix absolute paths with a preloaded DSO | [symbol-shim](symbol-shim.md) | run here, host | - | 2 |
 | answer identity at the symbol layer | [identity-symbols](identity-symbols.md) | run here, host | - | 2 |
@@ -41,6 +47,7 @@ depend on a component this repository does not ship, and they say so.
 | a rooted phone | [chroot-busybox](chroot-busybox.md), then [chroot-glibc](chroot-glibc.md) |
 | about 2 MB of free space | both chroot recipes: 1.7 MB and 2.1 MB |
 | no glibc userland to copy files from | [ingredients-debian](ingredients-debian.md): 64 s, 225 MB on a host |
+| a libc patch without forking glibc | [glibc-swap](glibc-swap.md): ten files, re-checked per release |
 | only a Linux host, no phone | [ingredients-debian](ingredients-debian.md), [patch-interp](patch-interp.md), [symbol-shim](symbol-shim.md), [identity-symbols](identity-symbols.md) |
 | a boot image you are willing to risk | [boot-image-durable](boot-image-durable.md), only with a saved original |
 | network on the phone for `apt` | [debian-chroot-full](debian-chroot-full.md) |
@@ -84,7 +91,7 @@ follow one as if it were checked.
 
 | sketch | what would make it a recipe |
 | --- | --- |
-
+| a terminal in a tree | a probe of `/dev/ptmx` and `TIOCGPTN` in each domain, and one interactive shell through it |
+| the netlink leak | a tree that reads the phone's interfaces, and the same read under a different domain |
 | a glibc program without root using only this repository's parts | a runtime that starts the tree on an unrooted phone, and one run of one program |
-| `PT_INTERP` rewritten in every `.deb` before `dpkg` | a run against a real package set, with the loader path and the failure mode |
 | a virtual machine as the host (isolation 5) | an AVF device, a tree inside it, and one program's output |

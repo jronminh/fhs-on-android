@@ -1,0 +1,15 @@
+# The files a libc patch changed, relative to the tree's root. Paths are the
+# installed ones: libc.so.6 and the loader's directory first, then the modules
+# whose code uses what the patch edits, then the three programs of libc-bin.
+# The last three are binaries, not libraries, and are replaced because they
+# link patched objects -- not because a program needs them at run time.
+usr/lib/aarch64-linux-gnu/libc.so.6
+usr/lib/aarch64-linux-gnu/ld-linux-aarch64.so.1
+usr/lib/aarch64-linux-gnu/libresolv.so.2
+usr/lib/aarch64-linux-gnu/libnsl.so.1
+usr/lib/aarch64-linux-gnu/libnss_compat.so.2
+usr/lib/aarch64-linux-gnu/libnss_hesiod.so.2
+usr/lib/aarch64-linux-gnu/librt.so.1
+usr/sbin/ldconfig
+usr/bin/localedef
+usr/bin/iconv
