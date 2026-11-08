@@ -28,6 +28,7 @@ is [isolation](README.md#the-isolation-scale).
 | choosing between approaches | [methods/README.md](methods/README.md) |
 | "does this phone allow it" | [examples/probe.sh](examples/probe.sh) |
 | what is actually known | [reference/evidence.md](reference/evidence.md) |
+| progress, and what is next | [TODO.md](TODO.md) |
 | the examples, and what each proves | [reference/examples.md](reference/examples.md) |
 
 ## Rules that are not negotiable

@@ -98,6 +98,7 @@ Every non-obvious statement is labelled:
 
 ## Status
 
-2026-11, pre-alpha, one maintainer, no CI. Corrections with a device and a date
+2026-11, pre-alpha, one maintainer, no CI. What is measured and what is next is
+kept in [TODO.md](TODO.md). Corrections with a device and a date
 are the most useful contribution ([CONTRIBUTING.md](CONTRIBUTING.md)). Text is
 CC BY 4.0, scripts MIT ([LICENSE](LICENSE)).
