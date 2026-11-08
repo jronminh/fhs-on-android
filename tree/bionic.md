@@ -26,6 +26,11 @@ and it costs the least of the trees described here.
 | state | `etc/` (intent) and `var/` (generated) | [the state rule](README.md#state) |
 | supervisor | a shell loop with a respawn policy | there is no PID 1 to delegate to |
 
+Measured on Android 10, 12 and 15 with one busybox 1.36.1.1 (358 applets): every
+one of the twenty tools in the farm also existed on `/system/bin`, and `ip` there is
+iproute2, not toybox. The farm buys **one implementation with the same options**, not
+a tool the phone lacks [m].
+
 ## Root is a mode, detected in one file
 
 Nothing in the tree may assume root, and nothing may duplicate the check:

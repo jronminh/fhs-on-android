@@ -51,6 +51,10 @@ a bug in this repository.
 | `cmd`/`svc`/`content` survive or die with the framework; ADB does not | [m] | both devices; `svc` moved from ART to `cmd` between Android 10 and 15 |
 | a bionic program's `PT_INTERP` is `/system/bin/linker64` | [m] | read on Android 12 and 15, 2026-11-08 |
 | `readelf` is absent before Android 12 | [m] | sdk 29 has toybox without it; sdk 31 and 35 have it |
+| the same static busybox works on Android 10, 12 and 15 | [m] | one 1.36.1.1 binary, 358 applets, identical on three phones, 2026-11-08 |
+| the tools the farm provides also exist on `/system/bin`, `ip` as iproute2 | [m] | twenty names checked on all three; `ip utility, iproute2-ss171113` |
+| a command with `status`/`check`/`adopt` behaves the same on three Android versions | [m] | adopt then check: 0; tampered intent: 1 with `diff sdk`; 2026-11-08 |
+| a shell supervisor restarts its child without a PID 1 | [m] | 3 starts, 3 respawns, 0 left running on each of the three phones |
 | the shell domain cannot `chroot` or `unshare -Ur` | [m] | uid 2000, `Seccomp: 0`: `chroot` exit 125, `unshare` exit 1, on Android 10, 12 and 15, 2026-11-08 |
 | root can `chroot`, and still cannot create a user namespace | [m] | Magisk, Android 15: `chroot / /system/bin/true` ok; `unshare -Ur true` says `Invalid argument`, 2026-11-08 |
 | a rooted phone's boot partition is 64 MB in total | [m] | `blockdev --getsize64` on the S21 FE, 2026-11-08 |

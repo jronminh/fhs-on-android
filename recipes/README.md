@@ -25,6 +25,9 @@ depend on a component this repository does not ship, and they say so.
 | a tree that survives a factory reset | [boot-image-durable](boot-image-durable.md) | recorded | yes | - |
 | a full Debian tree with a working package manager | [debian-chroot-full](debian-chroot-full.md) | run here | yes | 4 |
 | build a program for the tree on the host | [cross-build](cross-build.md) | run here | yes, needs a tree | 1 |
+| one busybox, the same options on every phone | [busybox-farm](busybox-farm.md) | run here, three phones | no | 0 |
+| a command with `status`, `check` and `adopt` | [service-verbs](service-verbs.md) | run here, three phones | no | 0 |
+| a child process that comes back when it dies | [supervisor](supervisor.md) | run here, three phones | no | 0 |
 
 ## By constraint
 
@@ -40,6 +43,8 @@ depend on a component this repository does not ship, and they say so.
 | a boot image you are willing to risk | [boot-image-durable](boot-image-durable.md), only with a saved original |
 | network on the phone for `apt` | [debian-chroot-full](debian-chroot-full.md) |
 | a host cross-compiler | [cross-build](cross-build.md) |
+| one tool set that behaves the same on Android 10, 12 and 15 | [busybox-farm](busybox-farm.md) |
+| no service manager, no root | [service-verbs](service-verbs.md), [supervisor](supervisor.md) |
 
 ## The shape of a recipe
 
