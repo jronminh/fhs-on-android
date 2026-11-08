@@ -25,6 +25,7 @@ Two rules for this file:
 | a program cross-built on the host runs inside the tree | [recipes/cross-build.md](recipes/cross-build.md) |
 | one busybox farm, one service with verbs, one supervisor - each run on Android 10, 12 and 15 | [recipes](recipes/README.md) |
 | a raw syscall site patched on disk and at load, in a chroot tree | [recipes/patch-syscall-site.md](recipes/patch-syscall-site.md) |
+| shared memory via `memfd` on a kernel with no SysV IPC, on all three phones | [recipes/memfd-shared-segment.md](recipes/memfd-shared-segment.md) |
 | deleting a tree while `/dev` was bound into it took a rooted phone off USB; `/dev` was rebuilt by the reboot (413 entries) | [tree/root.md](tree/root.md#deleting-a-tree-safely); the rule is in [AGENTS](AGENTS.md) |
 
 ## Next, in suggested order

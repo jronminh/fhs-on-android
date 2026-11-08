@@ -113,6 +113,15 @@ cb58c835cc05533c4c8dac7d691111032e147e6e420f60d2ecf6d9c582456e0f  raw
 The call did not print: it asked the kernel for the pid, not for a write. The file
 hash is the proof that the second run patched only memory.
 
+**The general form** [s]. The number is not always in the instruction right before
+the call: a libc may do `mov x8, #nr` then set up two registers and only then
+`svc`. So the scan looks back a window (about 8 instructions) for the `movz x8`
+encoding, and tests each word with
+`(w & 0xffe0001f) == 0xd2800008`; the number is `(w >> 5) & 0xffff`. The
+cancellable path keeps the number in `x6`, not `x8`, and a runtime leaves that
+site alone. A wrong pick is cheap when the hook re-reads `x8` at call time and
+passes through unknown numbers.
+
 **If it fails.**
 
 | symptom | cause | next check |

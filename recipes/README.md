@@ -29,6 +29,7 @@ depend on a component this repository does not ship, and they say so.
 | a command with `status`, `check` and `adopt` | [service-verbs](service-verbs.md) | run here, three phones | no | 0 |
 | a child process that comes back when it dies | [supervisor](supervisor.md) | run here, three phones | no | 0 |
 | change what a raw syscall asks for, on disk or at load | [patch-syscall-site](patch-syscall-site.md) | run here, chroot | yes | 1–2 |
+| share memory when the kernel has no SysV IPC | [memfd-shared-segment](memfd-shared-segment.md) | run here, three phones | no | 0 |
 
 ## By constraint
 

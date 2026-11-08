@@ -57,6 +57,9 @@ a bug in this repository.
 | a shell supervisor restarts its child without a PID 1 | [m] | 3 starts, 3 respawns, 0 left running on each of the three phones |
 | a syscall site can be patched on disk with four bytes | [m] | `mov x8,#64` → `#172`, pattern unique, chroot run silent; 2026-11-08 |
 | the same patch at load leaves the file unchanged | [m] | `LD_PRELOAD` constructor, same sha256 before and after |
+| SysV IPC is absent from the kernel, on Android 10, 12 and 15 | [m] | `shmget` gives `Function not implemented` on all three |
+| `/dev/shm` is absent, so POSIX shared memory has no filesystem | [m] | `ls -d /dev/shm` fails on all three; no `shm` mount |
+| a `memfd` segment is shared across `fork` | [m] | `written by the child` read by the parent, on all three |
 | the shell domain cannot `chroot` or `unshare -Ur` | [m] | uid 2000, `Seccomp: 0`: `chroot` exit 125, `unshare` exit 1, on Android 10, 12 and 15, 2026-11-08 |
 | root can `chroot`, and still cannot create a user namespace | [m] | Magisk, Android 15: `chroot / /system/bin/true` ok; `unshare -Ur true` says `Invalid argument`, 2026-11-08 |
 | a rooted phone's boot partition is 64 MB in total | [m] | `blockdev --getsize64` on the S21 FE, 2026-11-08 |
