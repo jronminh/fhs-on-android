@@ -15,7 +15,7 @@ what the phone already gives — different costs, different failure classes,
 different places to live ([two kinds of tree](../tree/README.md)). This page
 is the half both of them share.
 
-## What you actually have
+## What the platform provides
 
 | | on a stock phone | evidence |
 | --- | --- | --- |
@@ -55,7 +55,7 @@ the signal.
 
 The practical corollary: an app-domain tree pays for Gate A, an `adb shell` tree
 does not. `Seccomp: 0` for uid 2000 is why [the ADB host](./domains.md)
-is the easiest domain on the phone — and why it is the wrong domain for a
+is the least restricted domain on the phone, and why it is not the domain for a
 general-purpose app.
 
 ## What a package assumes
@@ -126,7 +126,7 @@ A Debian tree in a directory is a pile of files until these exist and work:
 Items 1–3 are the interesting ones and each has more than one solution: that is
 [the methods](../methods/README.md).
 
-## Why not just run everything as root
+## Why root is not available
 
 Because there is no root. `su` on a stock phone does not exist; Magisk is a
 different project with a different threat model. "Fake root" is not a
@@ -138,7 +138,7 @@ symptom.
 
 ## The one thing to remember
 
-The kernel has never heard of your tree. Every byte of progress comes from a
+The kernel has no notion of the tree. Every capability comes from a
 layer you own standing between the program and the kernel — rewriting a path,
 answering a call, or interpreting an identity. Once you accept that, the choice
 of method ([the methods](../methods/README.md)) is a budget question, not a mystery.

@@ -38,7 +38,7 @@ a bug in this repository.
 | a tree at native speed is reachable without root | [m] | the numbers in [measurement](./measure.md); 1.3–1.6× on the workloads listed |
 | the same tree boots on a 4.4 kernel | [m] | Sharp 701SH, 2026-11 |
 | proot's cost is "large on metadata, small on CPU" | [u] | widely reported; **this project has not measured it**. Measure before quoting |
-| user namespaces are usually unavailable | [u] | reported per device; the only honest form is `unshare -Ur` on your phone ([examples/probe.sh](../examples/probe.sh)) |
+| user namespaces are usually unavailable | [u] | reported per device; the only direct test is `unshare -Ur` on your phone ([examples/probe.sh](../examples/probe.sh)) |
 | a 16 KB-page device breaks 4 KB assumptions | [s]/[u] | the platform documents 16 KB; the exact failure per build system is untested here |
 | a high-`targetSdk` APK runtime with userland exec works | [u] | it is a design ([prior art](./prior-art.md)), not a shipped result |
 | a host-material tree (busybox + the host's own tools) runs a device 24/7 | [m] | S21 FE, Android 15, root: web UI, services, ADB rescue, OTA blocked, tether re-applied each boot |

@@ -2,8 +2,8 @@
 
 Isolation **0**. The tree's commands are files of POSIX `sh` that run on the host's
 own `sh` and toybox; nothing is translated and nothing is foreign. This is how the
-[host-material tree](../tree/bionic.md) is built, and it is the cheapest method
-there is: no loader, no shim, no tracer, no privilege.
+[host-material tree](../tree/bionic.md) is built, and it has the lowest cost of the methods here: no loader, no shim, no
+tracer, no privilege.
 
 ## What it buys
 

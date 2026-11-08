@@ -10,13 +10,13 @@ the repository, not what it contains.
   ([durability](tree/durability.md)), and what changes on a rooted phone
   ([root](tree/root.md)).
 - `methods/` — how a Linux program is made to run inside it, one page per
-  method, each with its isolation level and its price.
+  method, each with its isolation level and its cost.
 - `reference/` — the platform (three gates), the three domains, the failure
   catalogue, measurement, prior art, evidence.
 
 Every method page has the same six sections: what it buys, what it costs, an
 example from real code, how it fails, by domain, evidence. Every method is valid;
-the guide states the price and never ranks the method. The price that decides most
+the guide states the cost and does not rank the method. The cost axis used most
 is [isolation](README.md#the-isolation-scale).
 
 ## Enter from here
@@ -27,11 +27,11 @@ is [isolation](README.md#the-isolation-scale).
 | the tree exists, a program will not run | [reference/limits.md](reference/limits.md) |
 | choosing between approaches | [methods/README.md](methods/README.md) |
 | "does this phone allow it" | [examples/probe.sh](examples/probe.sh) |
-| what is actually known | [reference/evidence.md](reference/evidence.md) |
+| what is known | [reference/evidence.md](reference/evidence.md) |
 | progress, and what is next | [TODO.md](TODO.md) |
 | the examples, and what each proves | [reference/examples.md](reference/examples.md) |
 
-## Rules that are not negotiable
+## Rules
 
 1. **Label what you add**: `[m]` measured, `[s]` from source or spec, `[u]` unverified.
    An unlabelled factual sentence is a bug ([CONTRIBUTING](CONTRIBUTING.md)).

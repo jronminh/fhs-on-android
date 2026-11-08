@@ -31,26 +31,26 @@ static   : runs
 isolation: /system -> ls: /system: No such file or directory
 ```
 
-The last two lines are the point of the whole page: a static binary needs nothing
-from the phone and runs, while the phone's own `/system` is now out of reach. That
-is the purchase, and that is the bill.
+The last two lines state the trade: a static binary needs nothing from the phone
+and runs, while the phone's `/system` is out of reach. That is what level 4
+provides and what it removes.
 
-The one trap worth writing down: applet symlinks must be **relative**. Absolute
-links named the tree's path from outside, which does not exist inside, and the
-chroot died with `exec /bin/sh: No such file or directory`.
+One detail to record: applet symlinks must be **relative**. Absolute links name
+the tree's path from outside, which does not exist inside, and the chroot fails
+with `exec /bin/sh: No such file or directory`.
 
 ### With a glibc tree
 
 The same shape, and no more expensive to enter: three files (`dash`, libc, loader)
 make a 2.1 MB tree that reports `Debian GLIBC 2.41` from inside the chroot [m].
 The loader must be executable — 0644 gives `Permission denied`, not `ENOENT`,
-which is the trap `adb push` sets for you.
+which is what an `adb push` produces.
 
 ## What root changes for the tree
 
 - **Identity stops being constructed.** `chown`, setuid bits and `id` are the kernel's
   answers, so the [identity](../methods/identity.md) page's whole table collapses to
-  one row. The tree no longer has to lie, and no longer has to be believed.
+  one row. The tree no longer constructs identity, and no layer has to answer for it.
 - **Level 4 becomes available.** `chroot` works, so the path problem can be solved by
   the kernel instead of by a [shim](../methods/loader.md) or a [tracer](../methods/tracer.md).
   What it does *not* give is user namespaces: `unshare` is refused even as root on

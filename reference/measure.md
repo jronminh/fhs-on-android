@@ -19,7 +19,7 @@ This page is the small set of rules that make a number worth quoting.
 4. **Separate wall time from syscall counts.** Wall time tells you whether a
    person is waiting; stop counts tell you *where* the cost is. A method can have
    40% fewer stops and be 5% slower in wall time — both are true and both matter.
-5. **Measure the workload you actually have.** Metadata-heavy (`find`, `apt`,
+5. **Measure the workload in use.** Metadata-heavy (`find`, `apt`,
    `git status`) and CPU-heavy (a compiler, a benchmark loop) have completely
    different ratios under every method here.
 6. **Do not `strace` a traced tree.** You cannot attach a second `ptrace`
@@ -61,8 +61,8 @@ promise about your phone:
 | 300 × `true` (spawn) | — | — | the userland exec cut stops by ~42% against the loader path |
 
 Read that as "the hybrid method is close to native on this device", not as "the
-hybrid method is 1.3×". A `proot`-based tree on the same phone would be a very
-different table, and that is the point of measuring.
+hybrid method is 1.3×". A `proot`-based tree on the same phone would produce a
+different table, which is why it has to be measured.
 
 ## What moves the numbers
 

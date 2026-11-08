@@ -3,7 +3,7 @@
 Isolation **0–1**. Instead of translating at run time, own the build: compile the
 program against a libc that exists on the phone, and make its own paths point
 into the tree. Nothing stands between the program and Android afterwards, which
-is why this is the cheapest method that reaches real programs.
+is why this is the least expensive method that reaches real programs.
 
 ## What it buys
 

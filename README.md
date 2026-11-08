@@ -7,11 +7,11 @@ Two sentences are the whole repository.
 2. **Make a Linux program that knows nothing about Android run inside it** — and
    say what each way of doing that costs ([methods/](methods/README.md)).
 
-Every method is an answer to the second sentence, and every answer has a price.
-The price that matters most is **isolation**: how many things end up standing
-between the program and the phone. This guide treats isolation as a **cost**,
-because the reason to have a tree on Android is to use Android — its kernel, its
-hardware, its services — not to hide from it.
+Every method is an answer to the second sentence, and every answer has a cost.
+The axis this guide uses for cost is **isolation**: how many things stand between
+the program and the phone. Isolation is counted as a cost, because a tree on
+Android exists to use the device's kernel, hardware and services, and each layer
+between them reduces what the program can reach.
 
 ## The isolation scale
 
@@ -24,10 +24,9 @@ hardware, its services — not to hide from it.
 | **4** | namespaces, `chroot` | [chroot](methods/chroot.md), userns | privilege; Android's services and nodes go out of reach. `chroot` works on a rooted phone, `unshare -Ur` is refused even there [m] |
 | **5** | a virtual machine | AVF | the phone becomes a host, not a platform |
 
-Level 0 is not a way to run a *glibc* program unmodified: a glibc program needs
-its loader found, which is level 1 at most. That is the honest shape of the
-problem — the lower the isolation you want, the more you change the program
-instead of the environment around it. A rooted phone changes the contract, not the
+A *glibc* program cannot run unmodified at level 0: it needs its loader found,
+which is level 1 at most. The trade is direct: lower isolation means changing the
+program rather than the environment. A rooted phone changes the contract, not the
 scale: identity stops being faked and level 4 becomes real ([tree/root.md](tree/root.md)).
 
 ## The methods, side by side
@@ -45,22 +44,21 @@ scale: identity stops being faked and level 4 becomes real ([tree/root.md](tree/
 | [identity](methods/identity.md) | 2–3 | none | the checks the carrier reaches | native | medium |
 | [chroot](methods/chroot.md) | 4–5 | low | everything | native | high |
 
-Read it downwards: each step buys compatibility and pays isolation. Most trees
-end up mixing two or three rows, which is why the same program can have one
-price in the shell domain and another in an app.
+Moving down the table gains compatibility and loses reach. A tree usually
+combines two or three rows, and the same program carries a different cost in each
+domain.
 
-## Why this can be trusted
+## Evidence in the repository
 
-The strength of this guide is not the prose. Every method page carries a real
-example, and every claim is either measured, read in a specification, or marked
-unverified. A few, with the example that shows each one:
+Each method page is paired with a file in `examples/`, and each claim is
+labelled: measured, read in a specification, or unverified. Some pairs:
 
 | claim | example in this repository |
 | --- | --- |
 | a command is a file, and `check` answers a question | [examples/cmd.sh](examples/cmd.sh) |
 | `PT_INTERP` is one field, and rewriting it is a loop | [examples/elf-interp.sh](examples/elf-interp.sh) |
 | a path shim is small, and its blind spots are structural | [examples/shim-open.c](examples/shim-open.c) |
-| identity is a symbol-level lie that the kernel can expose | [examples/identity.c](examples/identity.c) |
+| identity can be answered at the symbol layer, and the kernel still disagrees | [examples/identity.c](examples/identity.c) |
 | the isolation the platform allows is two commands away | [examples/isolate-check.sh](examples/isolate-check.sh) |
 | a loader that the tree names is one `readelf` away | [examples/which-loader.sh](examples/which-loader.sh) |
 
@@ -74,7 +72,7 @@ choice of who answers: the loader ([tree](tree/README.md)), every absolute path,
 the identity ([methods/identity.md](methods/identity.md)), the right to be
 `exec`ed ([methods/exec.md](methods/exec.md)), and the kernel's refusals
 ([reference/problem.md](reference/problem.md)). Leaving one unanswered is a known
-hole, not a TODO.
+gap that the page names.
 
 ## Scope
 
@@ -84,9 +82,8 @@ Two supplies of programs, one tree: a **glibc userland** you import
 [reference/problem.md](reference/problem.md). Debian is the measured supply; the
 contracts are the same for any glibc userland.
 
-The guide is about the question, not about one project that answers it: the
-methods were found across several implementations, and the public ones are
-linked as [prior art](reference/prior-art.md), never as a dependency.
+The methods are assembled from several implementations; public ones are listed
+as [prior art](reference/prior-art.md), not as dependencies.
 
 ## Labels
 

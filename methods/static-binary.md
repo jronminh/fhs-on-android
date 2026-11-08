@@ -1,12 +1,12 @@
 # A static binary
 
 Isolation **0**. A static binary brings its own everything: no loader, no
-`ld.so.cache`, no libc in the tree. The tree only has to let it run — and to be
-honest that it sees the **phone's** filesystem, not a tree's.
+`ld.so.cache`, no libc in the tree. The tree only has to let it run; the binary sees the **phone's** filesystem, not
+the tree's.
 
 ## What it buys
 
-- **The cheapest way to add a real program**: copy it in, make it executable,
+- **The least expensive way to add a real program**: copy it in, make it executable,
   done. Native speed, no layer, no privilege.
 - **It cannot be broken by a tree change** — there is no path to bake and no
   library to resolve.

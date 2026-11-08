@@ -1,8 +1,8 @@
 # Limits: the failure catalogue
 
 Symptoms, in the order people meet them. Each row names the cause, which gate or
-class it belongs to ([the problem](./problem.md)), and the cheapest fix that is
-honest. Rows marked **unfixable** are not a matter of a better implementation.
+class it belongs to ([the problem](./problem.md)), and the least expensive fix that does not
+misrepresent the platform. Rows marked **unfixable** are not a matter of a better implementation.
 
 The rows assume a glibc program and its packages
 ([scope](../README.md#the-methods-side-by-side)), installed with Debian's
@@ -46,7 +46,7 @@ before the cause ([domains](./domains.md)):
 
 | symptom | cause | class | fix |
 | --- | --- | --- | --- |
-| `No such file or directory` running a file that obviously exists | the kernel resolved `PT_INTERP` against the **real** root and got `ENOENT` | A | make the interpreter resolvable: rewrite `PT_INTERP`, or run the tree's loader explicitly, or let the runtime's exec decide |
+| `No such file or directory` running a file that exists | the kernel resolved `PT_INTERP` against the **real** root and got `ENOENT` | A | make the interpreter resolvable: rewrite `PT_INTERP`, or run the tree's loader explicitly, or let the runtime's exec decide |
 | `error while loading shared libraries: libfoo.so.1: cannot open shared object file` | `DT_NEEDED` resolved through the real root's cache, not the tree's | A | the tree's own `ld.so.cache` (`ldconfig` inside the tree) is the correct fix; `LD_LIBRARY_PATH` is the quick one and is scrubbed at trust boundaries |
 | `cannot execute: required file not found` (glibc's own message) | the loader ran and could not find the program or a library | A | as above; check the program's own `ldd` under the loader |
 | `Exec format error` on a valid `arm64` binary | wrong architecture (an `amd64` tarball, or an `armhf` one) | — | check `readelf -h`; `uname -m` says `aarch64` |

@@ -3,12 +3,12 @@
 A **domain** is the security context a process runs in; a **host** is what puts you
 in one. There are three domains, and the difference between them is what the
 platform permits — not what the UI looks like. Every [method](../methods/README.md)
-pays its price differently in each.
+pays its cost differently in each.
 
 | domain | uid | Gate A | `execve` of app data | what it decides | hosts |
 | --- | --- | --- | --- | --- | --- |
 | **app** | `u0_aNNN` | yes | only at `targetSdk` ≤ 28 | the filter kills; the app's lifetime ends the tree | Termux, a custom APK |
-| **shell** | `2000` | **no** | yes | the easiest domain; nothing outlives `adbd` | `adb shell` |
+| **shell** | `2000` | **no** | yes | the least restricted domain; nothing outlives `adbd` | `adb shell` |
 | **root** | 0 | no | yes | capabilities, `chroot`, mounts, the boot image | Magisk or similar |
 
 ## The app domain
@@ -27,8 +27,8 @@ changes the UI and the lifetime, not the domain.
 ## The shell domain
 
 `2000(shell)`, no app, no filter, a prefix under `/data/local/tmp`, driven over
-ADB. `Seccomp: 0` [m] means no Gate A at all: the easiest domain, and the best
-for measuring. Its rule is lifetime — a process started here does not outlive the
+ADB. `Seccomp: 0` [m] means no Gate A: the least restricted domain, and the one used
+for measurement here. Its rule is lifetime — a process started here does not outlive the
 `adbd` that started it [m], so a long-running service needs a re-attach loop from the
 PC side. The *files* do survive.
 
@@ -42,7 +42,7 @@ means for the tree, and what it costs: [tree/root.md](../tree/root.md).
 The only domain with capabilities: real `chown`, real setuid, `mount`, `chroot`, `tun`,
 raw sockets, ports below 1024, a writable kernel log — and the boot image, the
 only place a factory reset does not reach ([tree/durability.md](../tree/durability.md)).
-The price is the unlock: attestation, some vendor features, and an OTA obligation
+The cost is the unlock: attestation, some vendor features, and an OTA obligation
 on devices whose next release removes unlocking.
 
 ## The four hosts side by side
@@ -57,7 +57,7 @@ on devices whose next release removes unlocking.
 | survives a factory reset | no | no | no | **yes, from the boot image** |
 | survives `adbd` restart | yes | yes | **no** | yes |
 | usable by a normal user | yes | yes | no | no |
-| best for | building, experimenting | the product | headless, measuring | lab devices |
+| typical use | building, experimenting | the product | headless, measuring | lab devices |
 
 ## What a host must supply
 

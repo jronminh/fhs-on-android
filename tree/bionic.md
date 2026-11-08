@@ -3,7 +3,7 @@
 **Poor host** is the term for a host that gives you `sh`, toybox and a loader —
 and nothing else: no glibc, no compiler, no package manager, no `chroot`. A tree
 built from that material is a layout plus your scripts, a few hundred kilobytes,
-and it is the cheapest tree that exists.
+and it costs the least of the trees described here.
 
 - **Buys** isolation level 0: nothing sits between the program and the kernel.
   Measured: one static busybox becomes a 359-applet tree of 1.7 MB that runs in a
@@ -21,7 +21,7 @@ and it is the cheapest tree that exists.
 | --- | --- | --- |
 | POSIX tools | **one busybox**, reached through a symlink farm | toybox applets and options change between AOSP versions, so behaviour depends on the phone; one busybox behaves the same everywhere |
 | shell | Android's `mksh`; scripts in POSIX `sh` | it is already there and it is what `init` uses |
-| framework actions | `getprop settings svc pm am dumpsys` | the platform's own interface; reimplementing it is how a tree rots |
+| framework actions | `getprop settings svc pm am dumpsys` | the platform's own interface; reimplementing it creates a second implementation to maintain |
 | your commands | `bin/<name>` scripts, one verb set each ([methods/scripts.md](../methods/scripts.md)) | a command is a file, so it can be read, edited and called over ADB |
 | state | `etc/` (intent) and `var/` (generated) | [the state rule](README.md#state) |
 | supervisor | a shell loop with a respawn policy | there is no PID 1 to delegate to |
@@ -58,5 +58,5 @@ into the tree.
 Every command is yours; there is no dependency resolution, so version pinning is
 manual. The characteristic failure class is an assumption about the host leaking
 into the tree — a hardcoded root, a file that exists only on a rooted device, a
-sink that is not writable — and the fix is always one file that answers "where am
+sink that is not writable — and the fix is one file that answers "where am
 I and what may I do", with no other file allowed to guess.

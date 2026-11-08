@@ -8,7 +8,7 @@ it grows with the number of linked libraries [m].
 
 ## What it buys
 
-- **The cheapest unmodified path** (level 0): no layer sits between the program
+- **The least expensive unmodified path** (level 0): no layer sits between the program
   and Android's kernel; the tree supplies the loader and the cache, nothing else.
 - **Multi-distro scope**: a Debian, an Ubuntu and an Arch tree boot with the same
   core, because the loader comes from the program, not from a constant [m].

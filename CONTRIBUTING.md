@@ -65,6 +65,8 @@ labelled, and every failure is named by its observable string.
 ## Style
 
 - English, plain, present tense, no marketing.
+- Neutral register: state what was run and what was not; no superlatives, no
+  rhetorical contrasts, no first person.
 - Write for an agent that must act on the sentence, and for a person who must
   judge it: state the scope, the trade-off and the failure signature; leave the
   step-by-step to the tools.

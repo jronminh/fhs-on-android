@@ -9,7 +9,7 @@ run [u].
 
 - **A real root for the tree**: `chroot` to it, bind `/proc`, `/sys`, `/dev`, and the
   path problem disappears - no shim, no tracer, native speed.
-- **The strongest property a tree can have**: inside it, `/` *is* the tree, for every
+- **The most complete form of a tree as a root**: inside it, `/` *is* the tree, for every
   program, without teaching any of them.
 - **With namespaces**, in theory, the same view without a rooted phone - which the
   probed kernels refuse ([reference/domains.md](../reference/domains.md)).
@@ -19,7 +19,7 @@ run [u].
 - **Privilege**: without root the kernel refuses. In the shell domain all three
   tested phones answered `chroot: refused (125)` [m].
 - **Reach**: a tree with its own `/dev` and `/proc` stops seeing the phone's. In the
-  measured run `/system` answered `No such file or directory` - that is the bill,
+  measured run `/system` answered `No such file or directory` - that is the cost,
   not a bug.
 - **Recovery**: a bind that hangs at boot takes the only network path with it - the
   frame in [tree/durability.md](../tree/durability.md) exists for this class.
@@ -52,7 +52,7 @@ isolation: /system -> ls: /system: No such file or directory
 The last two lines are the trade in one screen: a static binary runs and needs
 nothing from the phone, while the phone's own `/system` is out of reach.
 
-### A glibc tree, not just a busybox
+### With a glibc userland
 
 [examples/glibc-chroot.sh](../examples/glibc-chroot.sh) takes three files from a
 glibc userland — `dash`, `libc.so.6`, `ld-linux-aarch64.so.1` — and builds a

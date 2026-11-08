@@ -10,7 +10,7 @@ asks "who am I" in at least five ways, and no single technique reaches all of th
 - setuid bits are honoured, because `passwd`, `sudo` and every maintainer script
   expect them;
 - `/etc/passwd`, `group`, `shadow` exist in the tree and agree with the answers;
-- a program that *verifies* privilege fails, and has to fail honestly.
+- a program that *verifies* privilege fails, and the failure is not hidden.
 
 ## Which carrier answers which check
 
@@ -18,7 +18,7 @@ asks "who am I" in at least five ways, and no single technique reaches all of th
 | --- | --- | --- |
 | `getuid`/`geteuid` from a dynamic program | the [loader shim](loader.md), at the symbol | nothing per call |
 | `getuid` from a static program or raw syscall | the [tracer](tracer.md) | one stop |
-| `chown`, `chmod` on the tree's files | the carrier answers "success"; the real owner does not change | a lie the file system can expose |
+| `chown`, `chmod` on the tree's files | the carrier answers "success"; the real owner does not change | an answer the file system can contradict |
 | file ownership at all | the [package](patch-package.md): ownership recorded when the tree is built | a table to keep in step |
 | setuid bits after a copy | the build records them; the boot restores them | a step that is easy to forget |
 | a real second uid | nothing: the kernel has one uid per process | a platform limit |
@@ -28,14 +28,14 @@ asks "who am I" in at least five ways, and no single technique reaches all of th
 - **A second truth**: whatever answers `getuid` must be the same thing that answers
   `chown` and that wrote `/etc/passwd`. Two of them will disagree.
 - **It is never real outside root**: the checks that go to the kernel (`setuid`,
-  `mount`) fail, and that failure must be honest rather than papered over.
+  `mount`) fail, and the failure is visible rather than hidden.
 - **A table to carry**: ownership and setuid bits recorded at build and restored
   at boot ([tree/durability.md](../tree/durability.md)).
 
 ## Example
 
-[examples/identity.c](../examples/identity.c) is the lie in a dozen lines: the
-symbols answer root, and the file system still disagrees.
+[examples/identity.c](../examples/identity.c) answers identity at the symbol layer, in a dozen lines; the file system still
+disagrees.
 
 ```c
 uid_t getuid(void)  { return 0; }
@@ -58,7 +58,7 @@ as a real syscall, `mount()`, and any owner read back through the kernel.
 | `chown: Operation not permitted` | no `CAP_CHOWN`, and no carrier answered | check the carrier is on for that program (shim vs tracer) |
 | `setuid()` returns `EPERM` from a "root" shell | the process is not privileged; `setuid` cannot be faked at the symbol layer | answer it at the boundary, or accept the failure |
 | `sudo: must be setuid root` after a copy | the setuid bit was dropped by `tar` or `adb push` | restore the recorded bits at boot |
-| a shim answers `getuid` but `chown` still fails | the program called `fchownat`, not `chown` - a different symbol | cover the symbols the program actually uses; a symbol-level lie is a coverage claim [m, 2026-11-08] |
+| a shim answers `getuid` but `chown` still fails | the program called `fchownat`, not `chown` - a different symbol | cover the symbols the program actually uses; a symbol-level answer covers only the symbols that are provided [m, 2026-11-08] |
 
 ## By domain
 

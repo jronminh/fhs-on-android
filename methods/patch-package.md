@@ -2,8 +2,8 @@
 
 Isolation **1**. Act once, before anything runs: edit the files a package contains
 — the ELF's `PT_INTERP`, a script's shebang, a library's `rpath` — and repack. It is
-the cheapest way to make a *prebuilt* program find the tree, and the most brittle
-when the tree moves.
+the least expensive way to make a *prebuilt* program find the tree, and the most
+fragile when the tree moves.
 
 ## What it buys
 

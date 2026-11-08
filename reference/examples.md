@@ -13,7 +13,7 @@ This page is the index: example -> what it demonstrates -> how to check it.
 | [which-loader.sh](../examples/which-loader.sh) | static vs dynamic, and whether the named loader exists in the tree | `which-loader.sh /system/bin/sh`, then a program from the tree |
 | [elf-interp.sh](../examples/elf-interp.sh) | the one-field edit, idempotent, skipping what has no `PT_INTERP` | `--dry-run` on a copy of a tree |
 | [shim-open.c](../examples/shim-open.c) | a path shim in one symbol, and the blind spots named in its header | build it and run a dynamic program with `LD_PRELOAD` |
-| [identity.c](../examples/identity.c) | identity as a symbol-level lie, and the checks that still fail | `LD_PRELOAD` it and run `id` |
+| [identity.c](../examples/identity.c) | identity answered at the symbol layer, and the checks that still fail | `LD_PRELOAD` it and run `id` |
 | [isolate-check.sh](../examples/isolate-check.sh) | the isolation the platform allows is two commands away | run it in each domain |
 | [build-bionic.sh](../examples/build-bionic.sh) | owning the build, and finding the paths the tree must then teach | `CC=` an NDK clang, then run it on a source file |
 | [count-stops.sh](../examples/count-stops.sh) | what a tracer would be paid: the syscalls a workload makes | run it on a Linux host with `strace` |
@@ -71,10 +71,9 @@ mechanism does not need one [m]:
   `static: no interpreter` for one built with `-static`.
 - `identity.c`: `id -u` prints 1000, and 0 under `LD_PRELOAD` - while a real
   `chown` still fails, because coreutils calls `fchownat`, not `chown`: a symbol-level
-  lie covers only the symbols the program actually uses.
+  answer covers only the symbols the program uses.
 - `shim-open.c`: `cat /etc/hostname` under `TREE` prints the tree's file, and a
-  **static** probe prints the host's - the blind spot, demonstrated rather than
-  asserted.
+  **static** probe prints the host's - the blind spot, shown by the run.
 
 ## Where the numbers come from
 

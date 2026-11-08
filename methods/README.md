@@ -2,12 +2,12 @@
 
 Everything here exists to answer one question: **how does a program that knows
 nothing about Android come to run inside the [tree](../tree/README.md)?** Each
-page is one answer, and each answer has a price. The price this guide cares about
+page is one answer, and each answer has a cost. The cost this guide cares about
 most is [isolation](../README.md#the-isolation-scale): how many things end up
 standing between the program and the phone. Every method below is valid; the
 pages state what it buys, what it costs, and when you would pick it.
 
-| method | isolation | what it is | one-line price |
+| method | isolation | what it is | one-line cost |
 | --- | --- | --- | --- |
 | [scripts](scripts.md) | 0 | the host's own `sh` and tools, one file per command | you write every command |
 | [static binary](static-binary.md) | 0 | a binary that needs no libc at all | it sees the phone's filesystem |
@@ -45,20 +45,20 @@ who answers, and leaving one unanswered is a known hole:
    ([rebuild](rebuild.md), [static](static-binary.md)) over wrapping it
    ([shim](loader.md), [tracer](tracer.md)) — the wrapper is what makes the tree
    stop feeling like Android.
-3. **Then the price you can keep paying.** A tracer is cheap per program and
+3. **Then the cost you can keep paying.** A tracer is cheap per program and
    expensive to maintain; a rebuilt program is the reverse.
 
-## Two costs that bite every method
+## Two costs that apply to every method
 
 Neither is a rule about which method to pick; both are bills you pay whichever one
 you pick.
 
 1. **The path rule must have one owner.** Two components deciding what
-   `/etc/passwd` means will disagree, and the bill arrives as a random `ENOENT` on one
+   `/etc/passwd` means will disagree, and the failure appears as a random `ENOENT` on one
    path and not another.
 2. **A fast path leaves holes.** A shim skips a cost; where it is the only answer
    for a syscall class, coverage depends on which binaries happen to be dynamic.
-   The bill is a bug that appears with the first static program in the tree.
+   The cost is a bug that appears with the first static program in the tree.
 
 ## What this guide has not tried
 

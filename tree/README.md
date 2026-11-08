@@ -2,7 +2,7 @@
 
 A tree is a directory with a stable layout — `bin lib etc var tmp home` — an
 entry point, and the rule that a program can find its world by absolute path.
-That is all. The kernel has never heard of it: no mount, no `chroot`, no root
+That is all. The kernel has no notion of it: no mount, no `chroot`, no root
 ([reference/problem.md](../reference/problem.md)).
 
 FHS is what makes the layout predictable. A tree can be *FHS-shaped* without
@@ -38,7 +38,7 @@ are the same four the [method pages](../methods/README.md) build on:
 | 1 | **emulate `/`** — a tracer or a preloaded library maps every absolute path | a runtime | a stop per traced call, or a coverage hole | foreign binaries, unmodified |
 | 2 | **rewrite the entry** — `PT_INTERP`, shebang, launcher | an install-time edit | cheap and permanent; brittle when the tree moves | any ELF or script you can edit |
 | 3 | **teach the program** — build it so the paths it owns point into the tree | the person building it | one patch per program | code you build |
-| 4 | **use the host's own libc** — write shell, or build against bionic | nobody | you write it | scripts and your own tools |
+| 4 | **use the host's own libc** — write shell, or build against bionic | no layer | you write it | scripts and your own tools |
 
 Strategies 2 and 4 are what make a tree cheap; strategies 1 and 3 are what make
 foreign programs run. Every method is a position on this table.

@@ -7,7 +7,7 @@ catch. The answer is to stop asking the kernel.
 
 ## What it buys
 
-- **The only route** when `execve` of app data is refused - no `targetSdk` 28 escape
+- **The only route described here** when `execve` of app data is refused - no `targetSdk` 28 escape
   hatch required.
 - **Syscall patching in memory the process owns**, so no `execmod` is needed.
 - **A fast path for static binaries**, which no preload can reach.

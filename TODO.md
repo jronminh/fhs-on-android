@@ -20,7 +20,7 @@ Two rules for this file:
 | the three loader states: no loader `ENOENT`, loader at 0644 `EACCES`, 0755 runs | [chroot](methods/chroot.md#the-two-loader-states-that-come-first) |
 | a path shim maps a name but a static binary still sees the host; a symbol-level identity answers `getuid` but not `fchownat` | [examples](reference/examples.md) |
 
-## Next, in the order worth doing
+## Next, in suggested order
 
 ### 1. A full glibc tree under `chroot`
 
@@ -78,11 +78,11 @@ that the loader comes from the program is reproducible from this repository.
 
 - **musl.** Out of scope, with its reason in [the problem](reference/problem.md); it
   reopens only with a measurement attached.
-- **Isolation** as a goal. The tree exists to use Android; isolation is the price,
+- **Isolation** as a goal. The tree exists to use Android; isolation is the cost,
   not the product.
 
 ## How to close an item
 
 Run it, write the output where the claim lives, add the row to
 [evidence](reference/evidence.md), move the item to **Done, measured**, and
-delete the section. An item without an output is not done, it is a hope.
+delete the section. An item without an output is not done.

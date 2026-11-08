@@ -2,7 +2,7 @@
 
 Isolation **3**. A `ptrace` tracer under a seccomp filter sees every syscall the
 program makes and can rewrite paths, answer identity, and refuse what the kernel
-would not. It is the widest surface there is: it catches static binaries, raw
+would not. It has the widest coverage of the surfaces here: it catches static binaries, raw
 `syscall()`, and the reads libc performs inside itself.
 
 ## What it buys
@@ -10,7 +10,7 @@ would not. It is the widest surface there is: it catches static binaries, raw
 - **Coverage nothing else has**: static binaries and raw syscalls included.
 - **No per-file work**: the same tracer runs a tree it has never seen.
 - **One place for the kernel's refusals**: a trap can become `ENOSYS` or `EPERM`
-  honestly, so software falls back instead of dying.
+  so software can fall back instead of being killed.
 
 ## What it costs
 
@@ -58,7 +58,7 @@ which is why the filter is number-first, and why the design goal is fewer stops.
 | --- | --- | --- |
 | the process dies with `Bad system call` | a syscall the app's filter traps (`TRAP` outranks `ERRNO`, so no errno is returned) | a supervisor installed from the first instruction, or a domain without the filter |
 | `ptrace: Operation not permitted` | a second tracer tried to attach | do not trace a traced tree; use the runtime's own counters |
-| the tree is slow only on `find`/`apt` | one stop per metadata call | it is the method's price, not a bug ([measure](../reference/measure.md)) |
+| the tree is slow only on `find`/`apt` | one stop per metadata call | it is the method's cost, not a bug ([measure](../reference/measure.md)) |
 | a program escapes the mapping after `exec` | the tracer was not re-armed across the exec | check the exec handoff |
 
 ## By domain

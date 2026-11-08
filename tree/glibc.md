@@ -3,7 +3,7 @@
 A userland the phone does not have: Debian `arm64`, Ubuntu, Arch — a root
 filesystem imported and made to run. It buys unmodified software, `apt`,
 compilers, `git`; it costs the whole emulation of `/`
-([methods/](../methods/README.md)), and it never reaches isolation level 0. If you
+([methods/](../methods/README.md)), and it cannot reach isolation level 0. If you
 do not need the package manager, [the host's own material](bionic.md) is cheaper.
 
 ## What the import has to get right
@@ -51,7 +51,7 @@ tree's keyring, `apt-get install hello` running [m, 2026-10-17].
 
 ## Three failures in five minutes
 
-The fastest way to internalise why a layer exists: a **static** binary runs at
+Three failures show why a layer exists: a **static** binary runs at
 once and then reads the *phone's* root; a **dynamic** one dies before `main` with
 `No such file or directory` although the file is there — the kernel resolved
 `PT_INTERP` against the real root and found no loader; and rewriting the interpreter
