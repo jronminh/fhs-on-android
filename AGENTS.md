@@ -57,6 +57,8 @@ is [isolation](README.md#the-isolation-scale).
 6. **Examples are illustrations, not tools.** `examples/` holds small files that
    show a mechanism; they are not the runtime, and the guide is not a runbook. It
    carries contracts, trade-offs and failure signatures.
+7. **Preserve published paths and cited heading slugs.** Follow the forwarding
+   and compatibility rules in [stable IDs](CONTRIBUTING.md#stable-ids).
 
 ## Scope
 

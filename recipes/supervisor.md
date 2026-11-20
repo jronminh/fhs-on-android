@@ -56,6 +56,7 @@ starts=3 respawns=3
 | symptom | cause | next check |
 | --- | --- | --- |
 | the child starts once and never returns | the loop exited, or the parent was killed with the group | the loop must stay the parent of every child |
+| two copies of a service run after its loop is restarted [m] | the previous child survived as an orphan [m] | check the old child before starting a replacement |
 | a boot hook kills the supervisor | `exec_background` ends when the script returns, and init kills the process group | use an init service for a long-lived process ([durability](../tree/durability.md#the-boot-image-frame)) |
 | respawn storm: hundreds of starts | no delay and no budget | a restart threshold and a delay, e.g. 5 s |
 
@@ -63,3 +64,11 @@ starts=3 respawns=3
 
 **Cost.** A shell loop is the whole supervisor: no cgroups, no limits, no ordering
 between services. It is enough for one process; it is not an init.
+
+The duplicate-child failure was measured on Galaxy S23 FE (SM-S7110), Android
+16, 2026-10-08 [m]. The outer loop recreated a killed per-service loop while the
+old service continued to write. [Evidence](../reference/evidence.md#what-each-page-rests-on)
+
+Open Android Router keeps a PID and last bound address per interface. Each tick
+stops an instance whose address changed and starts a replacement on a later tick
+if an address is available [s]. [Supervisor source](https://github.com/jronminh/open-android-router/blob/f340be4b4b755bd9d3c1736ed2e0386a871c5e56/core/bin/openar-web)

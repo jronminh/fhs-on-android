@@ -3,8 +3,9 @@
 Isolation **1**. Take the distribution's `libc6` and `libc-bin` and replace the
 files an Android patch changes — **ten files**; everything else stays the
 distribution's. The smallest libc change that still gives a tree its own paths,
-and it shipped: the list is in deb-native `core/install/dn-fix-glibc.sh`
-(2026-10-05) [s], retired on 2026-10-12 for stock `libc6`.
+and it shipped. The list is in the [archived restore script](https://github.com/jronminh/deb-native/blob/main/archive/history/dn-fix-glibc.sh)
+(originally `core/install/dn-fix-glibc.sh`, commit `f0331fe`, 2026-10-05) [s].
+Stock `libc6` replaced the swap on 2026-10-12 [s].
 
 ## What it buys
 
@@ -82,8 +83,9 @@ unchanged: a trapped call is still a signal, whichever libc is loaded.
 ## Evidence
 
 - **[s]** the ten files, the stash, the post-invoke restore and the seeding
-  order: `core/install/dn-fix-glibc.sh` (commit `f0331fe`, 2026-10-05) and
-  `bootstrap/dn-install-glibc.sh`. The other packaging —
+  order: the [archived restore script](https://github.com/jronminh/deb-native/blob/main/archive/history/dn-fix-glibc.sh)
+  (originally `core/install/dn-fix-glibc.sh`, commit `f0331fe`, 2026-10-05)
+  and `bootstrap/dn-install-glibc.sh`. The other packaging —
   `scripts/glibc/dn-package-glibc.sh` and `dn-package-libc-bin.sh` — repackages
   Debian's `.deb`s with a `+dn1` version; `libc-bin` needed its own because its
   programs bake a sysconfdir, while `libc6-dev` needs only the same version.

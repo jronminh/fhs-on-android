@@ -19,6 +19,12 @@ Reset clears `/data`, not `boot`. So a reset is survivable only if the thing tha
 one ([the host's own material](bionic.md)), and a glibc tree is restored *by* it
 rather than living in it.
 
+**Write and execute are separate checks.** In the shell domain,
+`/data/local/traces` accepted a new script and direct execution returned
+`Permission denied`. The same test executed from `/data/local/tmp`. Measured
+on Galaxy S23 FE (SM-S7110), Android 16, 2026-10-08 [m].
+[Evidence](../reference/evidence.md#what-each-page-rests-on)
+
 ## Two levels, and you must say which
 
 - **survives a reboot**: `/data` — settings, `pm` state, `/data/adb`, `/data/misc/adb/adb_keys`.

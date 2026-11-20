@@ -75,6 +75,16 @@ labelled, and every failure is named by its observable string.
   say which shell).
 - No images of terminals for text that can be copied.
 
+## Stable IDs
+
+Published page paths and cited heading slugs are stable IDs. If content moves,
+leave a forwarding page at the old path and keep its cited headings, with links
+to the new sections. If a heading moves or changes within a page, keep a
+compatibility heading that renders the old slug. Use relative Markdown links
+within the guide so `python3 tools/check-links.py` checks them against the
+checkout. A derivative cites a reviewed commit as described in
+[derivatives](derivatives.md#how-a-derivative-cites-foa).
+
 ## Process, such as it is
 
 Single maintainer. Two checks run on every push — every internal link and anchor

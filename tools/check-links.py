@@ -1,26 +1,31 @@
 #!/usr/bin/env python3
-"""Check that every internal link and anchor in the guide resolves.
+"""Check the guide's relative Markdown links and anchors.
 
 Run from the repository root:
 
     python3 tools/check-links.py
 
-A relative link must name a file that exists with the same letter case, because
-that is what GitHub's server does and what a phone's shell does not. An anchor
-must name a heading that exists, using GitHub's slug rules. Exit status is 1 when
-anything is broken, so CI fails on the sentence a reader would have found broken.
+A relative link must name a file that exists with the same letter case. A
+heading anchor uses GitHub's slug rules. Source line anchors must fall within
+the file. Exit status is 1 when a link or anchor is broken.
 """
 
 import os
 import re
 import sys
+from urllib.parse import unquote
 
 TEXT_EXTENSIONS = {".md", ".txt", ""}
 SKIP_DIRS = {".git"}
 
-LINK = re.compile(r"\[[^\]]*\]\(([^)\s]+)\)")
+DESTINATION = r"(<[^>\n]*>|[^()\s<>]+)"
+TITLE = r"""(?:[ \t\n]+(?:"[^"]*"|'[^']*'|\([^)]*\)))?"""
+LINK = re.compile(r"(?<!\\)\[[^\]]*\]\([ \t\n]*" + DESTINATION + TITLE + r"[ \t\n]*\)")
+REFERENCE = re.compile(r"^ {0,3}\[[^\]\n]+\]:[ \t]*" + DESTINATION, re.MULTILINE)
 FENCE = re.compile(r"^\s*(```|~~~)")
-HEADING = re.compile(r"^(#{1,6})\s+(.*?)\s*$")
+HEADING = re.compile(r"^ {0,3}#{1,6}\s+(.*?)\s*$")
+LINE_RANGE = re.compile(r"L([1-9]\d*)(?:-L([1-9]\d*))?")
+CODE_SPAN = re.compile(r"(?<!`)(`+)(?!`).*?(?<!`)\1(?!`)", re.DOTALL)
 INLINE_CODE = re.compile(r"`([^`]*)`")
 INLINE_LINK = re.compile(r"\[([^\]]*)\]\([^)]*\)")
 HTML_TAG = re.compile(r"<[^>]+>")
@@ -60,10 +65,14 @@ def anchors(path):
             match = HEADING.match(line)
             if not match:
                 continue
-            base = slug(match.group(2))
+            base = slug(match.group(1))
+            heading = base
             count = seen.get(base, 0)
-            found.add(base if count == 0 else "%s-%d" % (base, count))
-            seen[base] = count + 1
+            while heading in found:
+                count += 1
+                heading = "%s-%d" % (base, count)
+            found.add(heading)
+            seen[base] = count
     return found
 
 
@@ -86,6 +95,57 @@ def resolve(base_dir, target):
     return current
 
 
+def check_anchor(path, fragment, cache):
+    if os.path.isdir(path):
+        path = resolve(path, "README.md")
+        if path is None:
+            return "no README.md for directory anchor"
+    if path.lower().endswith(".md"):
+        if path not in cache:
+            cache[path] = anchors(path)
+        return None if fragment in cache[path] else "no such heading"
+
+    match = LINE_RANGE.fullmatch(fragment)
+    if not match:
+        return "no such anchor"
+    first = int(match.group(1))
+    last = int(match.group(2) or first)
+    with open(path, "rb") as handle:
+        length = sum(1 for _ in handle)
+    return None if first <= last <= length else "line anchor out of range"
+
+
+def iter_targets(handle):
+    """Yield destinations at their opening line, including wrapped inline links."""
+    block = []
+    first_line = 1
+    in_fence = False
+
+    def block_targets():
+        # Keep line numbers while hiding link examples in wrapped code spans.
+        visible = CODE_SPAN.sub(lambda match: re.sub(r"[^\n]", " ", match[0]), "".join(block))
+        for pattern in (LINK, REFERENCE):
+            for match in pattern.finditer(visible):
+                yield first_line + visible.count("\n", 0, match.start()), match[1]
+
+    for number, line in enumerate(handle, 1):
+        if FENCE.match(line):
+            yield from block_targets()
+            block.clear()
+            in_fence = not in_fence
+            continue
+        if in_fence:
+            continue
+        if not line.strip():
+            yield from block_targets()
+            block.clear()
+            continue
+        if not block:
+            first_line = number
+        block.append(line)
+    yield from block_targets()
+
+
 def main():
     root = os.getcwd()
     cache = {}
@@ -94,35 +154,24 @@ def main():
 
     for path in sorted(iter_text_files(root)):
         rel_path = os.path.relpath(path, root)
-        in_fence = False
         with open(path, encoding="utf-8", errors="replace") as handle:
-            for number, line in enumerate(handle, 1):
-                if FENCE.match(line):
-                    in_fence = not in_fence
+            for number, target in iter_targets(handle):
+                target = target.removeprefix("<").removesuffix(">")
+                if not target or re.match(r"^(?:[\w+.-]+:|//)", target):
                     continue
-                if in_fence:
+                checked += 1
+                where = "%s:%d" % (rel_path, number)
+                file_part, _, fragment = target.partition("#")
+                file_part = unquote(file_part.split("?", 1)[0])
+                base_dir = root if file_part.startswith("/") else os.path.dirname(path)
+                resolved = resolve(base_dir, file_part) if file_part else path
+                if resolved is None or os.path.commonpath([root, resolved]) != root:
+                    broken.append((where, target, "no such file, or the case differs"))
                     continue
-                for match in LINK.finditer(line):
-                    target = match.group(1)
-                    if re.match(r"^(https?:|mailto:|ftp:)", target):
-                        continue
-                    checked += 1
-                    where = "%s:%d" % (rel_path, number)
-                    if target.startswith("#"):
-                        resolved, fragment = path, target[1:]
-                    elif "#" in target:
-                        file_part, fragment = target.split("#", 1)
-                        resolved = resolve(os.path.dirname(path), file_part)
-                    else:
-                        resolved, fragment = resolve(os.path.dirname(path), target), ""
-                    if resolved is None:
-                        broken.append((where, target, "no such file, or the case differs"))
-                        continue
-                    if fragment and resolved.lower().endswith(".md"):
-                        if resolved not in cache:
-                            cache[resolved] = anchors(resolved)
-                        if fragment not in cache[resolved]:
-                            broken.append((where, target, "no such heading"))
+                if fragment:
+                    error = check_anchor(resolved, unquote(fragment), cache)
+                    if error:
+                        broken.append((where, target, error))
 
     for where, target, why in broken:
         print("%s: %s -- %s" % (where, target, why))

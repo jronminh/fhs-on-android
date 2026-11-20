@@ -36,6 +36,12 @@ It is root, or a host service. No path rule, shim or tracer creates a device.
   rest: that is the reach the `chroot` costs ([chroot](../methods/chroot.md)).
 - **A tree with no layer at all** sees the phone's `/dev` exactly as the domain
   does, which is the same answer for this one surface as a traced tree's.
+- **Bluetooth through a host service.** A shell-UID `app_process` opened a
+  framework GATT connection to a Xiaomi Smart Band 9 Active, measured on
+  Galaxy S23 FE (SM-S7110), Android 16, 2026-09-18 [m]. On that SDK 36 build `shell`
+  had `BLUETOOTH_CONNECT`, `BLUETOOTH_SCAN` and `BLUETOOTH_PRIVILEGED`. The
+  Termux app lacked the grants used by that transport, so it ran the backend
+  and delegated GATT to the shell process [s]. [Transport probe](https://github.com/jronminh/miband9-direct/blob/44896aedf740a8afa721426ea0b99025065d99ee/docs/SPIKE.md)
 
 ## Getting your device's numbers
 

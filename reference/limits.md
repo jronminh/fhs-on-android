@@ -90,7 +90,8 @@ before the cause ([domains](./domains.md)):
 | `ping: Operation not permitted`, `socket(AF_PACKET)` fails | no `CAP_NET_RAW` | B | **unfixable**; use a userspace ping (TCP) and mark it as such |
 | binding port 80/443 fails | ports below 1024 need `CAP_NET_BIND_SERVICE` | B | bind a high port and forward, or serve on the tether address |
 | `/dev/net/tun` missing, VPN tools fail | no tun device for the app domain | B/C | **unfixable** without root; wireguard-style tools need the host |
-| `systemctl` says "System has not been booted with systemd" | there is no PID 1 to talk to, and no cgroup delegation | — | a userspace supervisor (`runit`), or run services from the host |
+| `systemctl` says "System has not been booted with systemd" | there is no systemd PID 1 to talk to, and no cgroup delegation | — | a [shell supervisor](../recipes/supervisor.md), or run services from the host |
+| `runsv`: `unable to stat supervise/control`; `mkfifo` gives `EACCES` [m] | `runsv` needs a control FIFO [s]. Creation failed at all nine paths probed as shell on the [recorded device](evidence.md#what-each-page-rests-on) [m]. The precise policy rule is unknown [u]. | B | check FIFO creation in the intended directory and domain, or use a supervisor without a FIFO |
 | `dpkg` blocks on `invoke-rc.d`/`policy-rc.d` | maintainer scripts try to start services during install | — | ship `/usr/sbin/policy-rc.d` returning 101 in the tree |
 
 ## Domain, host and packaging
@@ -102,6 +103,9 @@ before the cause ([domains](./domains.md)):
 | `df` reports the phone's free space, and `apt` hits a quota | the tree lives in app data with a quota; `statvfs` answers for the phone | keep the tree small; `apt clean`; move `var/cache/apt` out |
 | a 51 MB tree becomes a 100 MB asset, or shrinks to half after extraction | the asset is a compressed copy of the tree; sparse files, hardlink tricks and `var/cache/apt` do not survive the round trip | build the asset from a cleaned tree (`apt clean`, no cache, no `ld.so.cache`) and check the *unpacked* size on the device |
 | installs work, then break after an `apt upgrade` | a hook path baked at build time went stale | re-derive hooks from the tree location at every post-change hook |
+| `xargs: Unknown option 'I{}'` in a package pre-install hook [m] | the runtime reordered `PATH` and the hook picked Android's `xargs` [m] | check which `xargs` the hook resolves. Excluding `/system/bin` from the hook's `PATH` fixed the recorded run [m]. [Evidence](evidence.md#what-each-page-rests-on) |
+| a child under `grun` finds glibc `bash` instead of Termux's usual `bash` [m] | `grun` prepends the shared glibc prefix's `bin` to `PATH` [s] | check the child's tool path. The [Bun run](../recipes/bun.md) measured the lookup. Effects on the CLI tools are unverified [u]. |
+| glibc lookups succeed with no `resolv.conf` [m] | a tethering resolver answered on loopback in the [recorded case](domains.md#what-a-host-must-supply) [m]. Availability with tethering idle is unknown [u]. | check the tree's resolver configuration and whether the local resolver answers |
 | **unfixable**: kernel modules, `iptables`, raw devices, DRM/KMS for an app | not granted to any non-root domain | use the device table (a broker process, or the GPU's own `pass` device) or root |
 
 ## A durable tree (host material, root)

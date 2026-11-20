@@ -5,11 +5,11 @@ Android patch changed replaced by the project's build — and a restore step so 
 package manager cannot put the stock ones back. **Isolation 1**: no layer at run
 time, one edit per file.
 
-**Recorded.** The mechanism is read in deb-native's history, not re-run for this
-repository: `core/install/dn-fix-glibc.sh` (commit `f0331fe`, 2026-10-05) lists
-the ten files and carries the restore; the approach was retired on 2026-10-12
-(`2a69cba`, "the tree takes stock libc6 from the mirror"). The method is
-[patched libc](../methods/patched-libc.md).
+**Recorded.** The [archived restore script](https://github.com/jronminh/deb-native/blob/main/archive/history/dn-fix-glibc.sh)
+(originally `core/install/dn-fix-glibc.sh`, commit `f0331fe`, 2026-10-05)
+lists the ten files and carries the restore [s]. The [patched libc method](../methods/patched-libc.md)
+was retired on 2026-10-12 (commit `2a69cba`) [s]. A rerun for this guide is
+pending [u].
 
 **Prerequisites.**
 
@@ -17,6 +17,7 @@ the ten files and carries the restore; the approach was retired on 2026-10-12
   made against;
 - the patched build's ten files, at their tree-relative paths;
 - a tree with Debian's layout (`usr/lib/aarch64-linux-gnu`);
+- a deb-native checkout at `$DEB_NATIVE` with the archived restore script;
 - about 300 MB free on the phone while both sets are present.
 
 **Time and size.** Minutes once the patched build exists; the build itself is
@@ -50,7 +51,8 @@ hours, on a Linux host, and is not this recipe.
    a `libc6`/`libc-bin` reinstall cannot silently leave stock glibc:
 
    ```sh
-   cp <deb-native>/core/install/dn-fix-glibc.sh "$TREE/usr/lib/deb-native/"
+   install -m 755 "${DEB_NATIVE:?set DEB_NATIVE to the deb-native checkout}/archive/history/dn-fix-glibc.sh" \
+       "$TREE/usr/lib/deb-native/"
    printf 'DPkg::Post-Invoke { "%s/usr/lib/deb-native/dn-fix-glibc.sh %s"; };\n' \
        "$TREE" "$TREE" > "$TREE/etc/apt/apt.conf.d/99-glibc-swap"
    ```

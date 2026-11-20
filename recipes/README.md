@@ -23,6 +23,7 @@ depend on a component this repository does not ship, and they say so.
 | a compiler in the tree that links right | [gcc-in-tree](gcc-in-tree.md) | recorded | no | 1 |
 | a DSO preloaded by the loader, not the env | [preload-shim](preload-shim.md) | recorded | no | 2 |
 | one program and its closure, no tree | [bundle](bundle.md) | recorded | no | 1 |
+| Bun, Claude Code or opencode in Termux | [bun](bun.md) | recorded | no | 1 |
 | point a binary at another loader | [patch-interp](patch-interp.md) | run here, host | - | 1 |
 | prefix absolute paths with a preloaded DSO | [symbol-shim](symbol-shim.md) | run here, host | - | 2 |
 | answer identity at the symbol layer | [identity-symbols](identity-symbols.md) | run here, host | - | 2 |

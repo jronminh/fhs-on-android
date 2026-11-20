@@ -34,6 +34,11 @@ the kernel's interface [s]. A tree does not need any of these — they are the
   whether a pair then works needs a program that calls `openpty`, which is the
   open sketch in [the backlog](../recipes/backlog.md). In the app domain it is a
   probe, not an assumption [u].
+- **An app-domain example in source.** PyRunner's JNI helper calls `forkpty`,
+  runs `execve` in the child, and returns the master fd and child PID to the
+  Android UI [s]. The [APK's native-library directory](domains.md#the-app-domain)
+  supplies the interpreter. A dated device run of this path is unverified [u].
+  [PTY implementation](https://github.com/jronminh/pyrunner/blob/3e100fdb291039b8828fa1e40715296f1dbf103f/jni/pty.c)
 - **If they do not open, there is no userspace substitute.** A `socketpair` is
   not a TTY, and a shim that fakes `isatty()` breaks the program at the next
   `tcgetattr` [s]. The honest answer is the `errno`, not a fake.

@@ -27,6 +27,7 @@ between them reduces what the program can reach.
 | make a program run in it, and what each way costs | [methods/](methods/README.md) |
 | a sequence to type, with its expected output and an undo | [recipes/](recipes/README.md) |
 | the platform, the failure catalogue, the evidence | [reference/](reference/README.md) |
+| projects that apply the guide, and how they cite it | [derivatives.md](derivatives.md) |
 | what is measured, and what is next | [TODO.md](TODO.md) |
 | how to send a correction | [CONTRIBUTING.md](CONTRIBUTING.md) |
 
@@ -35,16 +36,15 @@ between them reduces what the program can reach.
 | level | what stands between the program and Android | typical method | what it costs |
 | --- | --- | --- | --- |
 | **0** | nothing | [scripts](methods/scripts.md), [static binaries](methods/static-binary.md), a [rebuilt program](methods/rebuild.md) | nothing |
-| **1** | build time only | [patched package](methods/patch-package.md), [own libc](methods/own-libc.md) | the source, or the file |
+| **1** | build, install or launch setup | [patched package](methods/patch-package.md), [own libc](methods/own-libc.md), [explicit loader](methods/loader.md#the-three-techniques) | a changed build, file or launcher |
 | **2** | a preloaded DSO, in the process | [loader shim](methods/loader.md) | blind spots: static binaries, raw syscalls |
 | **3** | a tracer at the syscall boundary | [tracer](methods/tracer.md), proot | a stop per call |
 | **4** | namespaces, `chroot` | [chroot](methods/chroot.md), userns | privilege; Android's services and nodes go out of reach. `chroot` works on a rooted phone, `unshare -Ur` is refused even there [m] |
 | **5** | a virtual machine | AVF | the phone becomes a host, not a platform |
 
-A *glibc* program cannot run unmodified at level 0: it needs its loader found,
-which is level 1 at most. The trade is direct: lower isolation means changing the
-program rather than the environment. A rooted phone changes the contract, not the
-scale: identity stops being faked and level 4 becomes real ([tree/root.md](tree/root.md)).
+A prebuilt dynamic *glibc* binary with a Debian interpreter path needs a loader
+arranged before it starts. Selecting that loader explicitly is level 1. A rooted
+phone makes identity real and level 4 available ([tree/root.md](tree/root.md)).
 
 ## The methods, side by side
 
@@ -56,7 +56,7 @@ scale: identity stops being faked and level 4 becomes real ([tree/root.md](tree/
 | [patch package](methods/patch-package.md) | 1 | low, breaks when the tree moves | any editable ELF or script | native | medium |
 | [own libc](methods/own-libc.md) | 1 | hours, once | everything a libc answers | native | high |
 | [patched libc](methods/patched-libc.md) | 1 | ten files per release | everything a libc answers, if the patch covers it | native | medium |
-| [loader shim](methods/loader.md) | 0–2 | none | dynamic glibc | near native | medium |
+| [loader shim](methods/loader.md) | 1–2 | none | dynamic glibc | near native | medium |
 | [tracer](methods/tracer.md) | 3 | none | everything | slow on metadata | high |
 | [exec](methods/exec.md) | 2 | none | what the kernel refuses to exec | native | medium |
 | [identity](methods/identity.md) | 2–3 | none | the checks the carrier reaches | native | medium |
@@ -68,10 +68,9 @@ domain.
 
 ## Recipes
 
-Steps are in [recipes/](recipes/README.md): four goals, each tested on a named
-device or host, each with its expected output and an undo, and a page on the
-tools they assume ([recipes/tools.md](recipes/tools.md)). The pages here explain
-and cost; the recipes say what to type.
+The [recipe index](recipes/README.md) lists the goals, their basis, and the
+isolation level of each. Every recipe gives an expected result and an undo.
+The [tools page](recipes/tools.md) lists what the recipes assume.
 
 ## Evidence in the repository
 

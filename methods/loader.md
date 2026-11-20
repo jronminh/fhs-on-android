@@ -1,6 +1,6 @@
 # The loader
 
-Isolation **0-2**, depending on which of the three you use. This is the surface a
+Isolation **1–2**, depending on which of the three you use. This is the surface a
 dynamic glibc program cannot avoid: the kernel opens the interpreter named in
 `PT_INTERP` before `main`, and the loader then opens the libraries, the cache and
 the program's own files. Under a tracer that startup floor is **4-9 stops**, and
@@ -8,8 +8,8 @@ it grows with the number of linked libraries [m].
 
 ## What it buys
 
-- **The least expensive unmodified path** (level 0): no layer sits between the program
-  and Android's kernel; the tree supplies the loader and the cache, nothing else.
+- **An unmodified binary** (level 1): a launcher explicitly selects the tree's
+  loader. Once loaded, the program calls Android's kernel directly.
 - **Multi-distro scope**: a Debian, an Ubuntu and an Arch tree boot with the same
   core, because the loader comes from the program, not from a constant [m].
 - **A fast path** (level 2): a shim answers most calls with no stop - `git` 33 to 9
@@ -34,7 +34,7 @@ it grows with the number of linked libraries [m].
 
 | technique | level | how |
 | --- | --- | --- |
-| **the loader the tree names** | 0 | take `PT_INTERP` from the program, resolve it in the tree, and let the tree's `ld.so.cache` find the libraries |
+| **the loader the tree names** | 1 | take `PT_INTERP` from the program, resolve it in the tree, and invoke that loader directly, as in [bundle](../recipes/bundle.md) |
 | **a preloaded shim** | 2 | `LD_PRELOAD` redefines the path-taking symbols, and patches libc's own syscall sites in place |
 | **an interpreter instead of the loader** | 2 | point `PT_INTERP` at a real ELF that sets up the environment and `exec`s the real loader; replaced by the in-loader patch |
 

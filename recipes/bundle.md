@@ -84,3 +84,7 @@ adb shell 'rm -rf /data/local/tmp/bundle /data/local/tmp/moved'
 **Cost.** A bundle is not a system: no dependency resolution, no `/usr/share`, no
 package manager. When a program expects anything beyond its own closure, it is a
 [tree](../tree/glibc.md), not a bundle.
+
+An installed glibc prefix can supply the loader and libraries for several
+programs. In [the Termux Bun recipe](bun.md), plain `grun` selects that loader
+without editing the downloaded ELF, so the upstream checksum still verifies [s].

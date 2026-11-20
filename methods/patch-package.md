@@ -64,6 +64,11 @@ The edit is domain-independent; whether the result may run is not. App data is
 The `p_offset`/`p_vaddr` rule follows from glibc's own `elf/rtld.c` [s]; the
 per-file translation was used to build the measured prefixes [m].
 
+A proposed level-1 variant translates packages for a fixed prefix before
+publication and signs the apt repository metadata. The downloaded archives can
+then retain the hashes apt checked. The signed feed is a design [u].
+[Evidence](../reference/evidence.md#what-each-page-rests-on)
+
 ## A bundle, not a tree
 
 The smallest form of this surface: a program plus its closure — a loader, a

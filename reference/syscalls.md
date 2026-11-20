@@ -53,6 +53,29 @@ The 32 and the 42 are the *real denials* — calls the kernel has and the platfo
 withholds. The 224 and 198 are calls the kernel never had: they would answer
 `ENOSYS` even without a filter.
 
+**Earlier raw sweep.** Measured on Galaxy S23 FE (SM-S7110), Android 16,
+kernel `5.10.240-android12`, 2026-10-07 [m]. A freestanding arm64 probe issued
+one syscall per child with all arguments set to zero and a one-second timer.
+The app targeted API 28 (`u:r:untrusted_app_27:s0`, `Seccomp: 2`, one filter).
+The shell control used `u:r:shell:s0`, `Seccomp: 0` [m].
+
+| numbers | probed | app `SIGSYS` | shell `SIGSYS` |
+| --- | --- | --- | --- |
+| named in the sweep's glibc 2.41 table | 315 (318 less `exit`, `exit_group`, `seccomp`) | 94 | 0 |
+| unnamed | 163 | 159 | 0 |
+| all numbers in 0–480, less the three skips | 478 | 253 | 0 |
+
+Unnamed numbers 244–259, 295–423 and 467–480 trapped in app and returned
+`ENOSYS` in shell. Numbers 463–466 returned `ENOSYS` in both. Of the 94 named
+traps, 50 returned `ENOSYS` in shell and 44 returned another result. The later
+census's 42 counts kernel-present denials in that census's own range and skip
+set [m].
+
+The `android16-qpr2-release` bionic allowlist model disagreed with the device
+at one of the 315 named calls exercised. It predicted a trap at
+`process_mrelease` (448). The call reached the kernel and returned `EBADF`
+in both domains [m][s]. [Evidence](evidence.md#what-each-page-rests-on)
+
 ## The 32 real denials, on 4.14
 
 | group | calls | what they mean for a program |

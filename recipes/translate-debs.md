@@ -4,10 +4,11 @@
 glibc ELF in it names the tree's loader, every script names the tree's
 interpreter, and `dpkg` sees a package it accepts. **Isolation 1.**
 
-**Basis.** **Recorded** — the project's translation step before 0.9 dropped the
-overlay (`dn-translate-deb.sh`, in deb-native's history). Not re-run for this
-repository. The domain facts it needs were checked on both phones, 2026-11-08
-[m]: `Seccomp: 0`, `/data/local/tmp` writable, **no `patchelf`**, `readelf` only
+**Basis.** **Recorded** — the [archived translation script](https://github.com/jronminh/deb-native/blob/main/archive/history/dn-translate-deb.sh)
+(originally `core/install/dn-translate-deb.sh`, commit `50eaa1e`, 2026-10-06)
+shows the translation step before 0.9 dropped the overlay [s]. A rerun for this
+guide is pending [u]. The domain facts it needs were checked on both phones,
+2026-11-08 [m]: `Seccomp: 0`, `/data/local/tmp` writable, **no `patchelf`**, `readelf` only
 on Android 12 (absent on the 701SH).
 
 **Prerequisites.**
@@ -84,3 +85,12 @@ translation has no other state.
 moves needs re-translation — the reason
 [a loader that derives its prefix](../methods/loader.md) is the better trade
 when the tree is meant to move.
+
+**Upgrade and purge.** The translation step ends at the archive. After install,
+use dpkg's installed file lists and a deterministic rule where they suffice to
+regenerate derived state, such as launchers, normalized links and the loader
+cache [s]. If the package database and rule cannot recover which package created
+an artifact or where it belongs, keep a prefix-owned per-package manifest and
+reconcile it on upgrade and purge [s]. Conffile prompts, purge cleanup and the
+handoff between old and new translated archives have no validation here [u].
+[Evidence](../reference/evidence.md#what-each-page-rests-on)

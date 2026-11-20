@@ -15,7 +15,7 @@ pages state what it buys, what it costs, and when you would pick it.
 | [patch package](patch-package.md) | 1 | edit the files: `PT_INTERP`, shebang, rpath, repack | the path is baked |
 | [own libc](own-libc.md) | 1 | patch or build the libc itself | you maintain it |
 | [patched libc](patched-libc.md) | 1 | the distribution's libc with ten files replaced | ten files to keep in step |
-| [loader shim](loader.md) | 0–2 | a preloaded DSO, and a loader that derives its prefix | blind spots |
+| [loader shim](loader.md) | 1–2 | explicit loader selection or a preloaded DSO | blind spots |
 | [exec](exec.md) | 2 | map the program yourself when the kernel refuses | the ELF loading contract |
 | [identity](identity.md) | 2–3 | answer `uid`, `chown`, setuid across the surfaces | one owner, or contradictions |
 | [tracer](tracer.md) | 3 | `ptrace` + seccomp, or proot | a stop per call |
@@ -61,11 +61,15 @@ you pick.
    for a syscall class, coverage depends on which binaries happen to be dynamic.
    The cost is a bug that appears with the first static program in the tree.
 
+Rooted `chroot` runs at level 4 with [BusyBox](../recipes/chroot-busybox.md) and
+[glibc](../recipes/chroot-glibc.md), measured on Galaxy S21 FE, Android 15,
+2026-11-08 [m].
+
 ## What this guide has not tried
 
-- **`chroot` and user namespaces** ([chroot.md](chroot.md)) — level 4 is designed but
-  never built here; the kernels probed answered `unshare(CLONE_NEWUSER)` with
-  `EINVAL`/`EPERM` [m].
+- **A working user namespace** ([chroot.md](chroot.md)) — `unshare -Ur` is
+  refused in shell on the tested Android 10, 12 and 15 phones, and as root on
+  the same Galaxy S21 FE [m].
 - **A virtual machine** (level 5): [prior art](../reference/prior-art.md).
 - **musl**: out of scope, with its reason in
   [reference/problem.md](../reference/problem.md).

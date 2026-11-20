@@ -20,6 +20,8 @@ jobs:
       - uses: actions/checkout@v4
       - name: every internal link and anchor resolves
         run: python3 tools/check-links.py
+      - name: link checker regression fixtures
+        run: python3 tools/test-check-links.py
 
   parses:
     name: examples parse

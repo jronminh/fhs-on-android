@@ -72,6 +72,12 @@ different table, which is why it has to be measured.
   behaviour and the result; on others it does not. Pick one and say which.
 - **The big.LITTLE split.** Cores 4–7 are often ~20% faster than 0–3 on the same
   phone. `taskset` the workload or your runs are comparing schedulers.
+- **The app's state when it spawns the session.** Measured on Galaxy S10e,
+  Android 12, 2026-10-14 [m]. A prefix session forked while its APK was visible
+  kept the `top-app` cpuset after the app moved to `foreground`. A compile ran
+  within the run-to-run spread in both states. The `run-as` control landed in
+  the shell's cpuset, so it sampled a different scheduler context [m]. Record
+  where the actual session starts. [Evidence](evidence.md#what-each-page-rests-on)
 - **Other radios and services.** Wi-Fi scanning, a sync, a system update — all
   noise. Airplane mode is not a neutral baseline either: it changes the CPU
   idle behaviour on some phones.

@@ -38,6 +38,12 @@ GPL-2.0); a tree directory with `bin/`, `lib/`, `etc/`; about 1 MB free.
 **Expected.** `check.sh` reports a served page, one status block with values, and one
 command whose output is the phone's (not an error message).
 
+The deploy contract is a working Android shell, a BusyBox with the needed
+applets, and the framework commands required by the enabled verbs [s].
+Open Android Router checks the applet farm, served pages, one status block and
+one command on the target [s]. Its Android 6–9 target remains unverified [u].
+[Support contract](https://github.com/jronminh/open-android-router/blob/f340be4b4b755bd9d3c1736ed2e0386a871c5e56/docs/SUPPORT.md)
+
 **If it fails.**
 
 | symptom | cause | next check |

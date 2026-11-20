@@ -58,3 +58,8 @@ Get:1 http://deb.debian.org/debian trixie InRelease ...
 and it does not outlive an `adbd` restart ([durability](../tree/durability.md)). The
 runtime is a layer between the program and Android — isolation 2 or 3, not 0
 ([the isolation scale](../README.md#the-isolation-scale)).
+
+**Separate recorded run.** An earlier ADB prefix with patched glibc and a
+preload shim installed `hello` and `jq`, measured on Galaxy S23 FE (SM-S7110),
+Android 16, 2026-10-08 [m]. `hello` printed `Hello, world!` and the `jq` map
+produced `[2,4,6]` [m]. [Evidence](../reference/evidence.md#what-each-page-rests-on)

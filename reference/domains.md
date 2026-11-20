@@ -20,9 +20,12 @@ changes the UI and the lifetime, not the domain.
 - **Termux** gives an equipped environment and a way to build the tree on the
   phone; it ships at `targetSdk 28` [s], which is what makes running binaries out
   of its data directory legal — a clock, not a design.
-- **A custom APK** gives a terminal UI and a foreground service; above `targetSdk`
-  28 it needs [a userland exec](../methods/exec.md) and never asks the kernel to
-  `execve` app data.
+- **A custom APK** can give a terminal UI and a foreground service. At
+  `targetSdk` 29 and above, executables written to app data need another launch
+  path, such as [userland exec](../methods/exec.md) [s]. PyRunner targets API 30
+  and packages CPython as `libpython3.so` with `extractNativeLibs="true"`. It
+  gets the executable path from `ApplicationInfo.nativeLibraryDir` and keeps
+  the standard library in app data [s]. [PyRunner build and manifest](https://github.com/jronminh/pyrunner/tree/3e100fdb291039b8828fa1e40715296f1dbf103f)
 
 ## The shell domain
 
@@ -31,6 +34,13 @@ ADB. `Seccomp: 0` [m] means no Gate A: the least restricted domain, and the one 
 for measurement here. Its rule is lifetime — a process started here does not outlive the
 `adbd` that started it [m], so a long-running service needs a re-attach loop from the
 PC side. The *files* do survive.
+
+**Two processes, two principals.** In termux-adb-bridge, the Termux client
+keeps its app UID and asks a separate daemon, started through authorized ADB,
+to run commands as uid 2000 [s]. The daemon detaches from its launching ADB
+session and has its own stop and redeploy lifecycle [s]. Detachment from a
+session leaves the ADB service's process-group lifetime a separate question [s].
+[Bridge implementation](https://github.com/jronminh/termux-adb-bridge/blob/dacc4897acd7eceee343f8a96ebbbe14b4989d19/README.md#how-it-works)
 
 ## The root domain
 
@@ -79,6 +89,13 @@ is, which binds, which host variables to keep); the Android services the tree
 cannot reach (DNS — the resolver is `netd` — clipboard, notifications); and the
 device nodes the domain may open. Keeping those in the host, and out of the path
 rule, is what makes one runtime serve several hosts.
+
+**DNS without `resolv.conf`.** Measured on Galaxy S23 FE (SM-S7110), Android
+16, 2026-10-07 [m]. In the app domain, a glibc lookup with no `resolv.conf`
+or `nsswitch.conf` fell back to UDP port 53 on loopback, where tethering
+`dnsmasq` answered. Stock glibc also resolved a name in the shell domain with
+no `resolv.conf` [m]. Whether that resolver is available with tethering idle is
+unknown [u]. [Evidence](evidence.md#what-each-page-rests-on)
 
 A fifth thing is not a question but a **match**: the runtime build a host carries
 must suit its realm. An app host needs the app build, with the app domain's
