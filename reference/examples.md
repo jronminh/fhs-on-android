@@ -11,6 +11,7 @@ This page is the index: example -> what it demonstrates -> how to check it.
 | --- | --- | --- |
 | [cmd.sh](../examples/cmd.sh) | a command is a file; `status`/`check`/`apply`, with `check` answering a question | run it on a phone; `check` exits non-zero and prints `diff ...` when the state is wrong |
 | [which-loader.sh](../examples/which-loader.sh) | static vs dynamic, and whether the named loader exists in the tree | `which-loader.sh /system/bin/sh`, then a program from the tree |
+| [detach.c](../examples/detach.c) | double fork, new session, stdio redirection and direct exec [s] | `gcc -fsyntax-only examples/detach.c` |
 | [elf-interp.sh](../examples/elf-interp.sh) | the one-field edit, idempotent, skipping what has no `PT_INTERP` | `--dry-run` on a copy of a tree |
 | [shim-open.c](../examples/shim-open.c) | a path shim in one symbol, and the blind spots named in its header | build it and run a dynamic program with `LD_PRELOAD` |
 | [identity.c](../examples/identity.c) | identity answered at the symbol layer, and the checks that still fail | `LD_PRELOAD` it and run `id` |
@@ -34,7 +35,7 @@ Three of the files were run on three phones (Android 10, 12, 15; `uid=2000`,
 
 The rest need tools the phones do not ship, and each says so instead of failing
 silently: `patchelf` ([elf-interp.sh](../examples/elf-interp.sh)), a compiler
-([build-bionic.sh](../examples/build-bionic.sh) and the two C files), `strace`
+([build-bionic.sh](../examples/build-bionic.sh), `shim-open.c` and `identity.c`), `strace`
 ([count-stops.sh](../examples/count-stops.sh)).
 
 ## Measured with a glibc tree, 2026-11-08

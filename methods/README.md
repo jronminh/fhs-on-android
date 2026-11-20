@@ -11,6 +11,7 @@ pages state what it buys, what it costs, and when you would pick it.
 | --- | --- | --- | --- |
 | [scripts](scripts.md) | 0 | the host's own `sh` and tools, one file per command | you write every command |
 | [static binary](static-binary.md) | 0 | a binary that needs no libc at all | it sees the phone's filesystem |
+| [shell-UID daemon](shell-uid-daemon.md) | 0 | an authenticated app client sends commands to a daemon in shell [s] | authorized launch and client authentication |
 | [rebuild](rebuild.md) | 0–1 | own the build, against bionic or the tree's glibc | you need the source |
 | [patch package](patch-package.md) | 1 | edit the files: `PT_INTERP`, shebang, rpath, repack | the path is baked |
 | [own libc](own-libc.md) | 1 | patch or build the libc itself | you maintain it |
@@ -21,8 +22,7 @@ pages state what it buys, what it costs, and when you would pick it.
 | [tracer](tracer.md) | 3 | `ptrace` + seccomp, or proot | a stop per call |
 | [chroot](chroot.md) | 4–5 | namespaces, `chroot`, a VM | privilege, and Android goes out of reach |
 
-Every method below has an artifact behind it: a file that ran on a phone
-([the examples](../reference/examples.md)).
+See [the examples](../reference/examples.md) for local illustrations and [the evidence record](../reference/evidence.md#what-each-page-rests-on) for recorded device runs.
 
 ## What every method must answer
 

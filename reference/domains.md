@@ -38,9 +38,11 @@ PC side. The *files* do survive.
 **Two processes, two principals.** In termux-adb-bridge, the Termux client
 keeps its app UID and asks a separate daemon, started through authorized ADB,
 to run commands as uid 2000 [s]. The daemon detaches from its launching ADB
-session and has its own stop and redeploy lifecycle [s]. Detachment from a
-session leaves the ADB service's process-group lifetime a separate question [s].
+session and has its own stop and redeploy lifecycle [s]. `setsid()` changes the
+POSIX process group. Android init can still clean up the `adbd` service cgroup [s].
 [Bridge implementation](https://github.com/jronminh/termux-adb-bridge/blob/dacc4897acd7eceee343f8a96ebbbe14b4989d19/README.md#how-it-works)
+
+The [shell-UID daemon method](../methods/shell-uid-daemon.md) covers client authentication, detachment and pairing.
 
 ## The root domain
 
